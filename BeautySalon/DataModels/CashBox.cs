@@ -1,8 +1,8 @@
 ﻿
 namespace BeautySalon.DataModels;
 
-public class CashBox(string id, float money)
+public class CashBox(string id, double money)
 {
     public string Id { get; private set; } = id;
-    public float Money { get; private set; } = money;
+    public double Money { get; private set; } = money;
 }
