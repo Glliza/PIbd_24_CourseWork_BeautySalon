@@ -1,5 +1,4 @@
-﻿
-namespace BeautySalon.Enums
+﻿namespace BeautySalon.Enums
 {
     public enum PostType
     {
