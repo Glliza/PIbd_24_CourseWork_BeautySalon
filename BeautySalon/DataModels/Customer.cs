@@ -1,10 +1,9 @@
-﻿
-namespace BeautySalon.DataModels
+﻿namespace BeautySalon.DataModels;
+
+public class Customer
 {
-    public class Customer(string id, string fio, string phoneNumber)
-    {
-        public string Id { get; private set; } = id;
-        public string FIO { get; private set; } = fio;
-        public string PhoneNumber { get; private set; } = phoneNumber;
-    }
+    public int ID { get; set; }
+    public string FIO { get; set; }
+    public DateTime BirthDate { get; set; }
+    public string? PhoneNumber { get; set; }
 }

@@ -1,10 +1,10 @@
-﻿
-namespace BeautySalon.DataModels;
+﻿namespace BeautySalon.DataModels;
 
-public class Smena(string cashBoxId, string staffId, DateTime start, DateTime end)
+public class Smena
 {
-    public string CashBoxId { get; private set; } = cashBoxId;
-    public DateTime DateTimeStart { get; private set; } = start;
-    public string StaffId { get; private set; } = staffId;
-    public DateTime DateTimeEnd { get; private set; } = end;
+    public int ID { get; set; } 
+    public int CashBoxID { get; set; }
+    public int StaffID { get; set; } 
+    public DateTime DateTimeStart { get; set; }
+    public DateTime? DateTimeFinish { get; set; } 
 }

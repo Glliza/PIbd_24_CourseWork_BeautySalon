@@ -1,8 +1,7 @@
-﻿
-namespace BeautySalon.DataModels;
+﻿namespace BeautySalon.DataModels;
 
-public class CashBox(string id, double money)
+public class CashBox
 {
-    public string Id { get; private set; } = id;
-    public double Money { get; private set; } = money;
+    public int ID { get; set; }
+    public decimal CurrentCapacity { get; set; }
 }
