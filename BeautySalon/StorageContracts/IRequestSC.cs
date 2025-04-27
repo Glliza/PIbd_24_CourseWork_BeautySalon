@@ -6,8 +6,7 @@ namespace BeautySalon.StorageContracts;
 public interface IRequestSC
 {
     Task<List<RequestDM>> GetList(
-        bool onlyActive = true, 
-        string? requestID = null,
+        bool onlyActive = true,
         string? customerID = null,
         OrderStatus? status = null,
         DateTime? fromDateCreated = null,

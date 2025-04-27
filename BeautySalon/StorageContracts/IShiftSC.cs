@@ -6,7 +6,6 @@ public interface IShiftSC
 {
     Task<List<ShiftDM>> GetList(
         bool onlyActive = true,
-        string? shiftID = null,
         string? staffID = null,
         string? cashBoxID = null,
         DateTime? fromDateTimeStart = null,
@@ -19,6 +18,5 @@ public interface IShiftSC
     Task AddElement(ShiftDM shiftDataModel);
     Task UpdElement(ShiftDM shiftDataModel);
     Task DelElement(string id);
-    Task RestoreElement(string id);
     Task EndShiftAsync(string shiftId, DateTime dateTimeFinish);
 }

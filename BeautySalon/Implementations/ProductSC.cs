@@ -1,10 +1,10 @@
-﻿using AutoMapper;
+﻿using Microsoft.EntityFrameworkCore;
+using BeautySalon.StorageContracts;
 using BeautySalon.DataModels;
+using BeautySalon.Exceptions;
 using BeautySalon.Entities;
 using BeautySalon.Enums;
-using BeautySalon.Exceptions;
-using BeautySalon.StorageContracts;
-using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace BeautySalon.Implementations;
 
@@ -30,7 +30,7 @@ internal class ProductSC : IProductSC
         _mapper = new Mapper(config);
     }
 
-    public async Task<List<ProductDM>> GetList(bool onlyActive = true, string? productID = null, string? name = null, int? stockQuantityBelow = null, ProductType? type = null)
+    public async Task<List<ProductDM>> GetList(bool onlyActive = true, string? name = null, int? stockQuantityBelow = null, ProductType? type = null)
     {
         try
         {
@@ -38,10 +38,6 @@ internal class ProductSC : IProductSC
             if (onlyActive)
             {
                 query = query.Where(x => !x.IsDeleted);
-            }
-            if (productID is not null)
-            {
-                query = query.Where(x => x.ID == productID);
             }
             if (name is not null)
             {
@@ -64,7 +60,7 @@ internal class ProductSC : IProductSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Product list: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -78,7 +74,7 @@ internal class ProductSC : IProductSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Product by ID {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -99,7 +95,7 @@ internal class ProductSC : IProductSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Product by name '{name}': {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -112,7 +108,7 @@ internal class ProductSC : IProductSC
             var existingElement = await _dbContext.Products.AsNoTracking().FirstOrDefaultAsync(x => x.ID == productDataModel.ID);
             if (existingElement != null)
             {
-                throw new ElementExistsException("ID", productDataModel.ID);
+                throw new ElementExistsException("ProductEntityID", productDataModel.ID);
             }
 
 
@@ -120,7 +116,7 @@ internal class ProductSC : IProductSC
             var existingProductByName = await _dbContext.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Name == productDataModel.Name && !x.IsDeleted);
             if (existingProductByName != null)
             {
-                throw new ElementExistsException("Name", productDataModel.Name, "An active Product with this name already exists.");
+                throw new ElementExistsException("ProductEntityID", productDataModel.ID);
             }
 
             // Map DM to Entity
@@ -142,9 +138,9 @@ internal class ProductSC : IProductSC
             {
                 // Attempt to provide more detail based on the constraint name if available
                 string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
-                throw new ElementExistsException("Product", $"Adding failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("ProductEntityID", productDataModel.ID);
             }
-            throw new StorageException($"Failed to add Product: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException)
         {
@@ -159,7 +155,7 @@ internal class ProductSC : IProductSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while adding Product: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -173,13 +169,13 @@ internal class ProductSC : IProductSC
             if (element == null)
             {
                 // If GetProductByID (which filters !IsDeleted) returns null, the element is not found or is deleted
-                throw new ElementNotFoundException(productDataModel.ID, "Active Product not found with this ID for update.");
+                throw new ElementNotFoundException(productDataModel.ID);
             }
 
             // Prevent updating if soft-deleted
             if (element.IsDeleted)
             {
-                throw new ElementNotFoundException(productDataModel.ID, "Cannot update a deleted Product.");
+                throw new ElementNotFoundException(productDataModel.ID);
             }
 
             // Check if the updated name conflicts with another active product (if name was changed)
@@ -188,7 +184,7 @@ internal class ProductSC : IProductSC
                 var existingProductByName = await _dbContext.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Name == productDataModel.Name && x.ID != productDataModel.ID && !x.IsDeleted);
                 if (existingProductByName != null)
                 {
-                    throw new ElementExistsException("Name", productDataModel.Name, "Another active Product with this name already exists.");
+                    throw new ElementExistsException("ProductEntityNAME", productDataModel.Name);
                 }
             }
             _mapper.Map(productDataModel, element);
@@ -202,9 +198,9 @@ internal class ProductSC : IProductSC
             if (ex.InnerException != null && (ex.InnerException.Message.Contains("unique constraint") || (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")))
             {
                 string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
-                throw new ElementExistsException("Product", $"Updating product {productDataModel.ID} failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("ProductEntityID", productDataModel.ID);
             }
-            throw new StorageException($"Failed to update Product {productDataModel.ID}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
@@ -212,7 +208,7 @@ internal class ProductSC : IProductSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while updating Product {productDataModel.ID}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -223,7 +219,7 @@ internal class ProductSC : IProductSC
             var element = await GetProductByID(id);
             if (element == null)
             {
-                throw new ElementNotFoundException(id, "Active Product not found with this ID for deletion.");
+                throw new ElementNotFoundException(id);
             }
 
             element.IsDeleted = true;
@@ -238,7 +234,7 @@ internal class ProductSC : IProductSC
         catch (DbUpdateException ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to soft delete Product {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException)
         {
@@ -248,7 +244,7 @@ internal class ProductSC : IProductSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while soft deleting Product {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -262,14 +258,14 @@ internal class ProductSC : IProductSC
 
             if (element == null || !element.IsDeleted) // Check if found AND is currently deleted
             {
-                throw new ElementNotFoundException(id, "No *deleted* Product found with this ID to restore.");
+                throw new ElementNotFoundException(id);
             }
 
             // Check if restoring would create a name conflict with an existing active product
             var existingProductByName = await _dbContext.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Name == element.Name && x.ID != element.ID && !x.IsDeleted);
             if (existingProductByName != null)
             {
-                throw new ElementExistsException("Name", element.Name, "Restoring this product would conflict with an existing active product's name.");
+                throw new ElementExistsException("PrEntityNAME", element.Name);
             }
 
             // Restore the element
@@ -292,16 +288,16 @@ internal class ProductSC : IProductSC
             if (ex.InnerException != null && (ex.InnerException.Message.Contains("unique constraint") || (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")))
             {
                 string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
-                throw new ElementExistsException("Product", $"Restoring product {id} failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("ProductEntityID", id);
             }
-            throw new StorageException($"Failed to restore Product {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementExistsException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while restoring Product {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -314,7 +310,7 @@ internal class ProductSC : IProductSC
 
             if (element == null)
             {
-                throw new ElementNotFoundException(productId, "Active Product not found with this ID to update stock.");
+                throw new ElementNotFoundException(productId);
             }
 
             // Update stock quantity
@@ -332,7 +328,7 @@ internal class ProductSC : IProductSC
         catch (DbUpdateException ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to update stock quantity for Product {productId}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException)
         {
@@ -347,7 +343,7 @@ internal class ProductSC : IProductSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while updating stock quantity for Product {productId}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 

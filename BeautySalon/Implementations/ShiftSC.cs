@@ -1,9 +1,9 @@
-﻿using AutoMapper;
-using BeautySalon.DataModels;
-using BeautySalon.Entities;
-using BeautySalon.Exceptions;
+﻿using Microsoft.EntityFrameworkCore;
 using BeautySalon.StorageContracts;
-using Microsoft.EntityFrameworkCore;
+using BeautySalon.DataModels;
+using BeautySalon.Exceptions;
+using BeautySalon.Entities;
+using AutoMapper;
 
 namespace BeautySalon.Implementations;
 
@@ -32,7 +32,7 @@ internal class ShiftSC : IShiftSC
         _mapper = new Mapper(config);
     }
 
-    public async Task<List<ShiftDM>> GetList(bool onlyActive = true, string? shiftID = null, string? staffID = null, string? cashBoxID = null, DateTime? fromDateTimeStart = null, DateTime? toDateTimeStart = null, DateTime? fromDateTimeFinish = null, DateTime? toDateTimeFinish = null)
+    public async Task<List<ShiftDM>> GetList(bool onlyActive = true, string? staffID = null, string? cashBoxID = null, DateTime? fromDateTimeStart = null, DateTime? toDateTimeStart = null, DateTime? fromDateTimeFinish = null, DateTime? toDateTimeFinish = null)
     {
         try
         {
@@ -52,11 +52,6 @@ internal class ShiftSC : IShiftSC
                 // Assuming onlyActive=false means include soft-deleted ones in the results.
                 query = query.Where(x => !x.IsDeleted); // Keep only active shifts + soft-deleted active=false
                                                         // If you truly need *all* shifts including hard-deleted (not our pattern), remove this line.
-            }
-
-            if (shiftID is not null)
-            {
-                query = query.Where(x => x.ID == shiftID);
             }
             if (staffID is not null)
             {
@@ -92,7 +87,7 @@ internal class ShiftSC : IShiftSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Shift list: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -107,7 +102,7 @@ internal class ShiftSC : IShiftSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Shift by ID {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -126,7 +121,7 @@ internal class ShiftSC : IShiftSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get active Shift for Staff ID {staffID}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -139,21 +134,21 @@ internal class ShiftSC : IShiftSC
             var existingElement = await _dbContext.Shifts.AsNoTracking().FirstOrDefaultAsync(x => x.ID == shiftDataModel.ID);
             if (existingElement != null)
             {
-                throw new ElementExistsException("ID", shiftDataModel.ID);
+                throw new ElementExistsException("ShiftEntityID", shiftDataModel.ID);
             }
 
             // Check if the referenced CashBox and Staff exist and are not deleted
             var cashBoxExists = await _dbContext.CashBoxes.AsNoTracking().AnyAsync(cb => cb.ID == shiftDataModel.CashBoxID && !cb.IsDeleted);
-            if (!cashBoxExists) throw new ElementNotFoundException(shiftDataModel.CashBoxID, "Referenced CashBox not found or is deleted.");
+            if (!cashBoxExists) throw new ElementNotFoundException(shiftDataModel.CashBoxID);
 
             var staffExists = await _dbContext.Workers.AsNoTracking().AnyAsync(s => s.ID == shiftDataModel.StaffID && !s.IsDeleted); // Use Workers DbSet name
-            if (!staffExists) throw new ElementNotFoundException(shiftDataModel.StaffID, "Referenced Staff not found or is deleted.");
+            if (!staffExists) throw new ElementNotFoundException(shiftDataModel.StaffID);
 
             // Check if the staff member already has an active shift
             var activeShift = await GetActiveShiftForStaffAsync(shiftDataModel.StaffID);
             if (activeShift != null)
             {
-                throw new ElementExistsException("StaffID", shiftDataModel.StaffID, $"Staff member {shiftDataModel.StaffID} already has an active shift (ID: {activeShift.ID}).");
+                throw new ElementExistsException("StaffEntityID *(shift)", shiftDataModel.StaffID);
             }
 
             // Map DM to EF Entity
@@ -167,9 +162,6 @@ internal class ShiftSC : IShiftSC
         catch (DbUpdateException ex)
         {
             _dbContext.ChangeTracker.Clear();
-            // Check inner exception for specific database errors (e.g., unique index violation, FK violation)
-            // For PostgreSQL Npgsql, unique constraint violation: SqlState '23505'
-            // FK violation: SqlState '23503'
             if (ex.InnerException != null)
             {
                 string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Constraint";
@@ -178,14 +170,14 @@ internal class ShiftSC : IShiftSC
 
                 if (sqlState == "23505") // Unique constraint violation
                 {
-                    throw new ElementExistsException("Shift", $"Adding failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                    throw new ElementExistsException("SHiftEntityName", constraintName);
                 }
                 else if (sqlState == "23503") // FK violation
                 {
-                    throw new StorageException($"Failed to add Shift due to a Foreign Key constraint violation ('{constraintName}'). Ensure referenced CashBox and Staff exist. Details: {ex.InnerException.Message}", ex);
+                    throw new StorageException(ex);
                 }
             }
-            throw new StorageException($"Failed to add Shift: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementExistsException) { _dbContext.ChangeTracker.Clear(); throw; }
@@ -193,7 +185,7 @@ internal class ShiftSC : IShiftSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while adding Shift: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -207,7 +199,7 @@ internal class ShiftSC : IShiftSC
             if (element == null)
             {
                 // If GetShiftByID (which filters !IsDeleted and DateTimeFinish == null) returns null, the element is not found or is already finished/deleted
-                throw new ElementNotFoundException(shiftDataModel.ID, "Active Shift not found with this ID for update.");
+                throw new ElementNotFoundException(shiftDataModel.ID);
             }
 
             // If the update includes DateTimeFinish, ensure it's after DateTimeStart (validation in DM should cover this, but double-check)
@@ -236,21 +228,21 @@ internal class ShiftSC : IShiftSC
 
                 if (sqlState == "23505") // Unique constraint violation
                 {
-                    throw new ElementExistsException("Shift", $"Updating shift {shiftDataModel.ID} failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                    throw new ElementExistsException("ShiftEntityID", shiftDataModel.ID);
                 }
                 else if (sqlState == "23503") // FK violation (e.g., changing an FK to a non-existent ID)
                 {
-                    throw new StorageException($"Failed to update Shift {shiftDataModel.ID} due to a Foreign Key constraint violation ('{constraintName}'). Ensure referenced entities exist. Details: {ex.InnerException.Message}", ex);
+                    throw new StorageException(ex);
                 }
             }
-            throw new StorageException($"Failed to update Shift {shiftDataModel.ID}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while updating Shift {shiftDataModel.ID}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -261,7 +253,7 @@ internal class ShiftSC : IShiftSC
             var element = await GetShiftByID(id);
             if (element == null)
             {
-                throw new ElementNotFoundException(id, "Active Shift not found with this ID for deletion.");
+                throw new ElementNotFoundException(id);
             }
 
             // Prevent deleting a shift that hasn't finished yet (business rule)
@@ -278,14 +270,14 @@ internal class ShiftSC : IShiftSC
         catch (DbUpdateException ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to soft delete Shift {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (InvalidOperationException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while soft deleting Shift {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -300,7 +292,7 @@ internal class ShiftSC : IShiftSC
 
             if (element == null || !element.IsDeleted) // Check if found AND is currently deleted
             {
-                throw new ElementNotFoundException(id, "No *deleted* Shift found with this ID to restore.");
+                throw new ElementNotFoundException(id);
             }
 
             // Restore the element
@@ -322,15 +314,15 @@ internal class ShiftSC : IShiftSC
             {
                 string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
                 // Specific handling if restoring causes a unique constraint violation
-                throw new ElementExistsException("Shift", $"Restoring shift {id} failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("ShiftEntityID", id);
             }
-            throw new StorageException($"Failed to restore Shift {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; } // Re-throw ElementNotFoundException
         catch (Exception ex) // Catch any other unexpected exceptions
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while restoring Shift {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -343,7 +335,7 @@ internal class ShiftSC : IShiftSC
 
             if (element == null)
             {
-                throw new ElementNotFoundException(shiftId, "Active Shift not found with this ID to end.");
+                throw new ElementNotFoundException(shiftId);
             }
 
             // Validate that the finish time is after the start time
@@ -356,13 +348,12 @@ internal class ShiftSC : IShiftSC
             // Set the finish time
             element.DateTimeFinish = dateTimeFinish;
 
-            // Save changes
             await _dbContext.SaveChangesAsync();
         }
         catch (DbUpdateException ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to end Shift {shiftId}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException)
         {
@@ -377,7 +368,7 @@ internal class ShiftSC : IShiftSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while ending Shift {shiftId}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 

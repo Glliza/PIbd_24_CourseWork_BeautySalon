@@ -6,8 +6,7 @@ namespace BeautySalon.StorageContracts;
 public interface IProductSC
 {
     Task<List<ProductDM>> GetList(
-        bool onlyActive = true, 
-        string? productID = null,
+        bool onlyActive = true,
         string? name = null,
         int? stockQuantityBelow = null,
         ProductType? type = null); 
@@ -17,6 +16,5 @@ public interface IProductSC
     Task AddElement(ProductDM productDataModel);
     Task UpdElement(ProductDM productDataModel);
     Task DelElement(string id);
-    Task RestoreElement(string id);
     Task UpdateStockQuantityAsync(string productId, int quantityChange);
 }

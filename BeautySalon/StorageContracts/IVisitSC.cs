@@ -6,7 +6,6 @@ public interface IVisitSC
 {
     Task<List<VisitDM>> GetList(
         bool onlyActive = true, 
-        string? visitID = null, 
         string? customerID = null,
         string? staffID = null,
         bool? status = null,
@@ -17,5 +16,4 @@ public interface IVisitSC
     Task AddElement(VisitDM visitDataModel);
     Task UpdElement(VisitDM visitDataModel);
     Task DelElement(string id);
-    Task RestoreElement(string id);
 }

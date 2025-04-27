@@ -1,9 +1,9 @@
-﻿using AutoMapper;
-using BeautySalon.DataModels;
-using BeautySalon.Entities;
-using BeautySalon.Exceptions;
+﻿using Microsoft.EntityFrameworkCore;
 using BeautySalon.StorageContracts;
-using Microsoft.EntityFrameworkCore;
+using BeautySalon.DataModels;
+using BeautySalon.Exceptions;
+using BeautySalon.Entities;
+using AutoMapper;
 
 namespace BeautySalon.Implementations;
 
@@ -24,7 +24,7 @@ internal class ServiceSC : IServiceSC
         _mapper = new Mapper(config);
     }
 
-    public async Task<List<ServiceDM>> GetList(bool onlyActive = true, string? serviceID = null, string? name = null, int? minDurationMinutes = null, int? maxDurationMinutes = null, decimal? minBasePrice = null, decimal? maxBasePrice = null)
+    public async Task<List<ServiceDM>> GetList(bool onlyActive = true, string? name = null, int? minDurationMinutes = null, int? maxDurationMinutes = null, decimal? minBasePrice = null, decimal? maxBasePrice = null)
     {
         try
         {
@@ -33,10 +33,6 @@ internal class ServiceSC : IServiceSC
             if (onlyActive)
             {
                 query = query.Where(x => !x.IsDeleted);
-            }
-            if (serviceID is not null)
-            {
-                query = query.Where(x => x.ID == serviceID);
             }
             if (name is not null)
             {
@@ -65,7 +61,7 @@ internal class ServiceSC : IServiceSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Service list: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -79,7 +75,7 @@ internal class ServiceSC : IServiceSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Service by ID {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -96,7 +92,7 @@ internal class ServiceSC : IServiceSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Service by name '{name}': {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -115,7 +111,7 @@ internal class ServiceSC : IServiceSC
             var existingServiceByName = await _dbContext.Services.AsNoTracking().FirstOrDefaultAsync(x => x.Name == serviceDataModel.Name && !x.IsDeleted);
             if (existingServiceByName != null)
             {
-                throw new ElementExistsException("Name", serviceDataModel.Name, "An active Service with this name already exists.");
+                throw new ElementExistsException("ServiceEntityNAME", serviceDataModel.Name);
             }
 
             var serviceEntity = _mapper.Map<Service>(serviceDataModel);
@@ -131,13 +127,13 @@ internal class ServiceSC : IServiceSC
             if (ex.InnerException != null && (ex.InnerException.Message.Contains("unique constraint") || (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")))
             {
                 string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
-                throw new ElementExistsException("Service", $"Adding failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("ServiceEntityName", constraintName);
             }
-            throw new StorageException($"Failed to add Service: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementExistsException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException($"An unexpected error occurred while adding Service: {ex.Message}", ex); }
+        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException(ex); }
     }
 
     public async Task UpdElement(ServiceDM serviceDataModel)
@@ -149,12 +145,12 @@ internal class ServiceSC : IServiceSC
             var element = await GetServiceByID(serviceDataModel.ID);
             if (element == null)
             {
-                throw new ElementNotFoundException(serviceDataModel.ID, "Active Service not found with this ID for update.");
+                throw new ElementNotFoundException(serviceDataModel.ID);
             }
 
             if (element.IsDeleted)
             {
-                throw new ElementNotFoundException(serviceDataModel.ID, "Cannot update a deleted Service.");
+                throw new ElementNotFoundException(serviceDataModel.ID);
             }
 
             if (element.Name != serviceDataModel.Name)
@@ -162,7 +158,7 @@ internal class ServiceSC : IServiceSC
                 var existingServiceByName = await _dbContext.Services.AsNoTracking().FirstOrDefaultAsync(x => x.Name == serviceDataModel.Name && x.ID != serviceDataModel.ID && !x.IsDeleted);
                 if (existingServiceByName != null)
                 {
-                    throw new ElementExistsException("Name", serviceDataModel.Name, "Another active Service with this name already exists.");
+                    throw new ElementExistsException("ServiceEntityNAME", serviceDataModel.Name);
                 }
             }
 
@@ -176,14 +172,14 @@ internal class ServiceSC : IServiceSC
             if (ex.InnerException != null && (ex.InnerException.Message.Contains("unique constraint") || (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")))
             {
                 string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
-                throw new ElementExistsException("Service", $"Updating service {serviceDataModel.ID} failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("ServiceEntityID", serviceDataModel.ID);
             }
-            throw new StorageException($"Failed to update Service {serviceDataModel.ID}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementExistsException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException($"An unexpected error occurred while updating Service {serviceDataModel.ID}: {ex.Message}", ex); }
+        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException(ex); }
     }
 
     public async Task DelElement(string id)
@@ -193,7 +189,7 @@ internal class ServiceSC : IServiceSC
             var element = await GetServiceByID(id);
             if (element == null)
             {
-                throw new ElementNotFoundException(id, "Active Service not found with this ID for deletion.");
+                throw new ElementNotFoundException(id);
             }
 
             element.IsDeleted = true;
@@ -204,10 +200,10 @@ internal class ServiceSC : IServiceSC
         catch (DbUpdateException ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to soft delete Service {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException($"An unexpected error occurred while soft deleting Service {id}: {ex.Message}", ex); }
+        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException(ex); }
     }
 
     public async Task RestoreElement(string id)
@@ -218,13 +214,13 @@ internal class ServiceSC : IServiceSC
 
             if (element == null || !element.IsDeleted)
             {
-                throw new ElementNotFoundException(id, "No *deleted* Service found with this ID to restore.");
+                throw new ElementNotFoundException(id);
             }
 
             var existingServiceByName = await _dbContext.Services.AsNoTracking().FirstOrDefaultAsync(x => x.Name == element.Name && x.ID != element.ID && !x.IsDeleted);
             if (existingServiceByName != null)
             {
-                throw new ElementExistsException("Name", element.Name, "Restoring this service would conflict with an existing active service's name.");
+                throw new ElementExistsException("ServiceEntityNAME", element.Name);
             }
 
             element.IsDeleted = false;
@@ -240,13 +236,13 @@ internal class ServiceSC : IServiceSC
             if (ex.InnerException != null && (ex.InnerException.Message.Contains("unique constraint") || (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")))
             {
                 string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
-                throw new ElementExistsException("Service", $"Restoring service {id} failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("ServiceEntityID", id);
             }
-            throw new StorageException($"Failed to restore Service {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementExistsException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException($"An unexpected error occurred while restoring Service {id}: {ex.Message}", ex); }
+        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException(ex); }
     }
 
     private Task<Service?> GetServiceByID(string id)

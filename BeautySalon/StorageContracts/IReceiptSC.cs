@@ -6,7 +6,6 @@ public interface IReceiptSC
 {
     Task<List<ReceiptDM>> GetList(
         bool onlyActive = true,
-        string? receiptID = null,
         string? staffID = null,
         string? customerID = null,
         bool? isCanceled = null,
@@ -18,6 +17,4 @@ public interface IReceiptSC
     Task AddElement(ReceiptDM receiptDataModel, string cashBoxId); 
     Task UpdElement(ReceiptDM receiptDataModel);
     Task DelElement(string id);
-    Task RestoreElement(string id);
-    Task<ReceiptDM?> GetReceiptByVisitIdAsync(string visitId);
 }

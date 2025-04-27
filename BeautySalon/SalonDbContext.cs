@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure; // For UseNpgsql options
 using BeautySalon.DataModels;
 using BeautySalon.Entities;
+using BeautySalon.Infrastructure;
 
 // IMPORTANT: You will need EF Core Entity classes in MyProject.DataAccess.Entities
 // These classes should mirror your Core Data Models but include 'public get; set;' properties,

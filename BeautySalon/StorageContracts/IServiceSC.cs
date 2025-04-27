@@ -6,7 +6,6 @@ public interface IServiceSC
 {
     Task<List<ServiceDM>> GetList(
         bool onlyActive = true,
-        string? serviceID = null,
         string? name = null,
         int? minDurationMinutes = null,
         int? maxDurationMinutes = null,
@@ -17,5 +16,4 @@ public interface IServiceSC
     Task AddElement(ServiceDM serviceDataModel);
     Task UpdElement(ServiceDM serviceDataModel);
     Task DelElement(string id);
-    Task RestoreElement(string id);
 }

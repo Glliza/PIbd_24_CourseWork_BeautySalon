@@ -21,7 +21,7 @@ internal class CustomerSC : ICustomerSC
         _mapper = new Mapper(config);
     }
 
-    public async Task<List<CustomerDM>> GetList(bool onlyActive = true, string? customerID = null, string? fio = null, string? phoneNumber = null, DateTime? fromBirthDate = null, DateTime? toBirthDate = null)
+    public async Task<List<CustomerDM>> GetList(bool onlyActive = true, string? fio = null, string? phoneNumber = null, DateTime? fromBirthDate = null, DateTime? toBirthDate = null)
     {
         try
         {
@@ -30,10 +30,6 @@ internal class CustomerSC : ICustomerSC
             if (onlyActive)
             {
                 query = query.Where(x => !x.IsDeleted);
-            }
-            if (customerID is not null)
-            {
-                query = query.Where(x => x.ID == customerID);
             }
             if (fio is not null)
             {
@@ -58,7 +54,7 @@ internal class CustomerSC : ICustomerSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Customer list: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -71,7 +67,7 @@ internal class CustomerSC : ICustomerSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Customer by ID {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -88,7 +84,7 @@ internal class CustomerSC : ICustomerSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Customer by phone number '{phoneNumber}': {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -107,7 +103,7 @@ internal class CustomerSC : ICustomerSC
             var existingPhoneCustomer = await _dbContext.Customers.AsNoTracking().FirstOrDefaultAsync(x => x.PhoneNumber == customerDataModel.PhoneNumber && !x.IsDeleted);
             if (existingPhoneCustomer != null)
             {
-                throw new ElementExistsException("PhoneNumber", customerDataModel.PhoneNumber ?? "null", "Customer with this phone number already exists.");
+                throw new ElementExistsException("CustomerEntityPhoneNumber", customerDataModel.PhoneNumber);
             }
 
             var customerEntity = _mapper.Map<Customer>(customerDataModel);
@@ -120,13 +116,13 @@ internal class CustomerSC : ICustomerSC
             _dbContext.ChangeTracker.Clear();
             if (ex.InnerException?.Message?.Contains("unique constraint") ?? false || (ex.InnerException?.GetType().Name == "PostgresException" && ex.InnerException.Message.Contains("23505")))
             {
-                throw new ElementExistsException("Customer", $"ID or PhoneNumber already exists. Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("CustomerINFO", "*[ID or PhoneNumber]");
             }
-            throw new StorageException($"Failed to add Customer: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementExistsException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException($"An unexpected error occurred while adding Customer: {ex.Message}", ex); }
+        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException(ex); }
     }
 
     public async Task UpdElement(CustomerDM customerDataModel)
@@ -142,7 +138,7 @@ internal class CustomerSC : ICustomerSC
             }
             if (element.IsDeleted) // Prevent updating if soft-deleted
             {
-                throw new ElementNotFoundException(customerDataModel.ID, "Cannot update a deleted Customer.");
+                throw new ElementNotFoundException(customerDataModel.ID);
             }
 
             // Optional: Check if updated phone number is unique and belongs to a different active customer
@@ -151,7 +147,7 @@ internal class CustomerSC : ICustomerSC
                 var existingPhoneCustomer = await _dbContext.Customers.AsNoTracking().FirstOrDefaultAsync(x => x.PhoneNumber == customerDataModel.PhoneNumber && x.ID != customerDataModel.ID && !x.IsDeleted);
                 if (existingPhoneCustomer != null)
                 {
-                    throw new ElementExistsException("PhoneNumber", customerDataModel.PhoneNumber, "Another customer with this phone number already exists.");
+                    throw new ElementExistsException("CustomerEntityPhoneNumber", customerDataModel.PhoneNumber);
                 }
             }
 
@@ -164,14 +160,14 @@ internal class CustomerSC : ICustomerSC
             _dbContext.ChangeTracker.Clear();
             if (ex.InnerException?.Message?.Contains("unique constraint") ?? false || (ex.InnerException?.GetType().Name == "PostgresException" && ex.InnerException.Message.Contains("23505")))
             {
-                throw new ElementExistsException("Customer", $"Updated PhoneNumber already exists. Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("CustomerINFO", "[PhoneNumber");
             }
-            throw new StorageException($"Failed to update Customer {customerDataModel.ID}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementExistsException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException($"An unexpected error occurred while updating Customer {customerDataModel.ID}: {ex.Message}", ex); }
+        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException(ex); }
     }
 
     public async Task DelElement(string id)
@@ -192,7 +188,7 @@ internal class CustomerSC : ICustomerSC
         catch (DbUpdateException ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to soft delete Customer {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException)
         {
@@ -202,7 +198,7 @@ internal class CustomerSC : ICustomerSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while soft deleting Customer {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -214,7 +210,7 @@ internal class CustomerSC : ICustomerSC
 
             if (element == null || !element.IsDeleted) // Check if found and *is* deleted
             {
-                throw new ElementNotFoundException(id, "No deleted Customer found with this ID to restore.");
+                throw new ElementNotFoundException(id);
             }
 
             // Optional: Check if restoring would create a phone number conflict with an existing active customer
@@ -223,7 +219,7 @@ internal class CustomerSC : ICustomerSC
                 var existingPhoneCustomer = await _dbContext.Customers.AsNoTracking().FirstOrDefaultAsync(x => x.PhoneNumber == element.PhoneNumber && x.ID != element.ID && !x.IsDeleted);
                 if (existingPhoneCustomer != null)
                 {
-                    throw new ElementExistsException("PhoneNumber", element.PhoneNumber, "Restoring this customer would conflict with an existing active customer's phone number.");
+                    throw new ElementExistsException("CustomerEntityPhoneNumber", element.PhoneNumber);
                 }
             }
 
@@ -239,13 +235,13 @@ internal class CustomerSC : ICustomerSC
             if (ex.InnerException?.Message?.Contains("unique constraint") ?? false || (ex.InnerException?.GetType().Name == "PostgresException" && ex.InnerException.Message.Contains("23505")))
             {
                 // Specific handling if restoring causes a unique constraint violation (e.g., phone number)
-                throw new ElementExistsException("Customer", $"Restoring customer {id} failed due to a unique constraint violation. Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("CustomerEntityID", id);
             }
-            throw new StorageException($"Failed to restore Customer {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementExistsException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException($"An unexpected error occurred while restoring Customer {id}: {ex.Message}", ex); }
+        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException(ex); }
     }
 
     // Helper method to get an active customer entity by ID

@@ -1,10 +1,10 @@
-﻿using AutoMapper;
+﻿using Microsoft.EntityFrameworkCore;
+using BeautySalon.StorageContracts;
 using BeautySalon.DataModels;
+using BeautySalon.Exceptions;
 using BeautySalon.Entities;
 using BeautySalon.Enums;
-using BeautySalon.Exceptions;
-using BeautySalon.StorageContracts;
-using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace BeautySalon.Implementations;
 
@@ -28,25 +28,25 @@ internal class RequestSC : IRequestSC
             // Ensure mapping handles the nested lists and ignores properties like IsDeleted managed by SC
             cfg.CreateMap<RequestDM, Request>()
                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
-               .ForMember(dest => dest.ProductItems, opt => opt.Ignore()) // Ignore mapping lists directly, handle manually
-               .ForMember(dest => dest.ServiceItems, opt => opt.Ignore()); // Ignore mapping lists directly, handle manually
+               .ForMember(dest => dest.ProductItems, opt => opt.Ignore())
+               .ForMember(dest => dest.ServiceItems, opt => opt.Ignore());
 
             // Map from DM list item to EF list item entity, ignore parent FKs and IsDeleted
             cfg.CreateMap<ProductListItemDM, ProductListItem>()
-                .ForMember(dest => dest.ParentRequestID, opt => opt.Ignore()) // Parent FK handled manually
-                .ForMember(dest => dest.ParentReceiptID, opt => opt.Ignore()) // Parent FK handled manually
-                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore()); // IsDeleted handled manually
+                .ForMember(dest => dest.ParentRequestID, opt => opt.Ignore())
+                .ForMember(dest => dest.ParentReceiptID, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
 
             cfg.CreateMap<ServiceListItemDM, ServiceListItem>()
-               .ForMember(dest => dest.ParentRequestID, opt => opt.Ignore()) // Parent FK handled manually
-               .ForMember(dest => dest.ParentVisitID, opt => opt.Ignore()) // Parent FK handled manually
-               .ForMember(dest => dest.IsDeleted, opt => opt.Ignore()); // IsDeleted handled manually
+               .ForMember(dest => dest.ParentRequestID, opt => opt.Ignore())
+               .ForMember(dest => dest.ParentVisitID, opt => opt.Ignore())
+               .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
         });
         _mapper = new Mapper(config); // Create Mapper instance
     }
 
     // Implement GetList method (async)
-    public async Task<List<RequestDM>> GetList(bool onlyActive = true, string? requestID = null, string? customerID = null, OrderStatus? status = null, DateTime? fromDateCreated = null, DateTime? toDateCreated = null)
+    public async Task<List<RequestDM>> GetList(bool onlyActive = true, string? customerID = null, OrderStatus? status = null, DateTime? fromDateCreated = null, DateTime? toDateCreated = null)
     {
         try
         {
@@ -60,10 +60,6 @@ internal class RequestSC : IRequestSC
             if (onlyActive)
             {
                 query = query.Where(x => !x.IsDeleted);
-            }
-            if (requestID is not null)
-            {
-                query = query.Where(x => x.ID == requestID); // Use EF Entity property name
             }
             if (customerID is not null)
             {
@@ -84,13 +80,13 @@ internal class RequestSC : IRequestSC
             }
 
 
-            var requestEntities = await query.AsNoTracking().ToListAsync(); // Use AsNoTracking for read-only queries
-            return _mapper.Map<List<RequestDM>>(requestEntities); // Map List of Entities to List of DMs
+            var requestEntities = await query.AsNoTracking().ToListAsync();
+            return _mapper.Map<List<RequestDM>>(requestEntities);
         }
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Request list: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -106,7 +102,7 @@ internal class RequestSC : IRequestSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Request by ID {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -129,7 +125,7 @@ internal class RequestSC : IRequestSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Request with items by ID {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -142,24 +138,24 @@ internal class RequestSC : IRequestSC
             var existingElement = await _dbContext.Requests.AsNoTracking().FirstOrDefaultAsync(x => x.ID == requestDataModel.ID);
             if (existingElement != null)
             {
-                throw new ElementExistsException("ID", requestDataModel.ID);
+                throw new ElementExistsException("RequestEntityID", requestDataModel.ID);
             }
 
             // Validate existence of related Customer
             var customerExists = await _dbContext.Customers.AsNoTracking().AnyAsync(c => c.ID == requestDataModel.CustomerID && !c.IsDeleted);
-            if (!customerExists) throw new ElementNotFoundException(requestDataModel.CustomerID, "Referenced Customer not found or is deleted.");
+            if (!customerExists) throw new ElementNotFoundException(requestDataModel.CustomerID);
 
             // Optional: Validate existence of Products and Services referenced by list items
             // Loop through items and check if ProductID/ServiceID exist in DB
             foreach (var productItemDm in requestDataModel.ProductItems)
             {
                 var productExists = await _dbContext.Products.AsNoTracking().AnyAsync(p => p.ID == productItemDm.ProductID && !p.IsDeleted);
-                if (!productExists) throw new ElementNotFoundException(productItemDm.ProductID, $"Referenced Product '{productItemDm.ProductID}' in Product Items not found or is deleted.");
+                if (!productExists) throw new ElementNotFoundException(productItemDm.ProductID);
             }
             foreach (var serviceItemDm in requestDataModel.ServiceItems)
             {
                 var serviceExists = await _dbContext.Services.AsNoTracking().AnyAsync(s => s.ID == serviceItemDm.ServiceID && !s.IsDeleted);
-                if (!serviceExists) throw new ElementNotFoundException(serviceItemDm.ServiceID, $"Referenced Service '{serviceItemDm.ServiceID}' in Service Items not found or is deleted.");
+                if (!serviceExists) throw new ElementNotFoundException(serviceItemDm.ServiceID);
             }
 
 
@@ -180,7 +176,8 @@ internal class RequestSC : IRequestSC
                .Select(itemDm => {
                    var itemEntity = _mapper.Map<ServiceListItem>(itemDm);
                    itemEntity.ParentRequestID = requestEntity.ID; // Set the FK back to the parent request
-                                                                  // itemEntity.ParentVisitID = null; // Explicitly set other potential parent FKs to null
+                                                                  // itemEntity.ParentVisitID = null;
+                                                                  // Explicitly set other potential parent FKs to null
                    itemEntity.IsDeleted = false; // Items are not deleted initially
                    return itemEntity;
                }).ToList();
@@ -201,22 +198,22 @@ internal class RequestSC : IRequestSC
 
                 if (sqlState == "23505") // Unique constraint violation
                 {
-                    throw new ElementExistsException("Request", $"Adding failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                    throw new ElementExistsException("RequestEntityName", constraintName);
                 }
                 else if (sqlState == "23503") // FK violation
                 {
-                    throw new StorageException($"Failed to add Request due to a Foreign Key constraint violation ('{constraintName}'). Ensure referenced Customer, Products, Services exist. Details: {ex.InnerException.Message}", ex);
+                    throw new StorageException(ex);
                 }
             }
-            throw new StorageException($"Failed to add Request: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
-        catch (ValidationException) { _dbContext.ChangeTracker.Clear(); throw; } // Re-throw validation exceptions
-        catch (ElementExistsException) { _dbContext.ChangeTracker.Clear(); throw; } // Re-throw ElementExistsException
-        catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; } // Re-throw ElementNotFoundException for missing references
+        catch (ValidationException) { _dbContext.ChangeTracker.Clear(); throw; }
+        catch (ElementExistsException) { _dbContext.ChangeTracker.Clear(); throw; }
+        catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while adding Request: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -234,7 +231,7 @@ internal class RequestSC : IRequestSC
 
             if (element == null)
             {
-                throw new ElementNotFoundException(requestDataModel.ID, "Active Request not found with this ID for update.");
+                throw new ElementNotFoundException(requestDataModel.ID);
             }
 
 
@@ -245,12 +242,12 @@ internal class RequestSC : IRequestSC
             foreach (var productItemDm in requestDataModel.ProductItems)
             {
                 var productExists = await _dbContext.Products.AsNoTracking().AnyAsync(p => p.ID == productItemDm.ProductID && !p.IsDeleted);
-                if (!productExists) throw new ElementNotFoundException(productItemDm.ProductID, $"Referenced Product '{productItemDm.ProductID}' in updated Product Items not found or is deleted.");
+                if (!productExists) throw new ElementNotFoundException(productItemDm.ProductID);
             }
             foreach (var serviceItemDm in requestDataModel.ServiceItems)
             {
                 var serviceExists = await _dbContext.Services.AsNoTracking().AnyAsync(s => s.ID == serviceItemDm.ServiceID && !s.IsDeleted);
-                if (!serviceExists) throw new ElementNotFoundException(serviceItemDm.ServiceID, $"Referenced Service '{serviceItemDm.ServiceID}' in updated Service Items not found or is deleted.");
+                if (!serviceExists) throw new ElementNotFoundException(serviceItemDm.ServiceID);
             }
 
             _mapper.Map(requestDataModel, element); // AutoMapper updates header properties
@@ -261,9 +258,9 @@ internal class RequestSC : IRequestSC
 
             // Handle Product Items
             var currentProductItemIds = element.ProductItems.Select(item => item.ID).ToList();
-            var newItemProductItemIds = requestDataModel.ProductItems.Where(itemDm => !currentProductItemIds.Contains(itemDm.ID)).Select(itemDm => itemDm.ID).ToList();
-            var updatedProductItemIds = requestDataModel.ProductItems.Where(itemDm => currentProductItemIds.Contains(itemDm.ID)).Select(itemDm => itemDm.ID).ToList();
-            var removedProductItems = element.ProductItems.Where(itemEntity => !requestDataModel.ProductItems.Any(itemDm => itemDm.ID == itemEntity.ID)).ToList();
+            var newItemProductItemIds = requestDataModel.ProductItems.Where(itemDm => !currentProductItemIds.Contains(itemDm.ProductID)).Select(itemDm => itemDm.ProductID).ToList();
+            var updatedProductItemIds = requestDataModel.ProductItems.Where(itemDm => currentProductItemIds.Contains(itemDm.ProductID)).Select(itemDm => itemDm.ProductID).ToList();
+            var removedProductItems = element.ProductItems.Where(itemEntity => !requestDataModel.ProductItems.Any(itemDm => itemDm.ProductID == itemEntity.ID)).ToList();
 
             // Remove items that are in the DB but not in the incoming DM list
             foreach (var itemToRemove in removedProductItems)
@@ -276,19 +273,20 @@ internal class RequestSC : IRequestSC
             }
 
             // Add new items that are in the incoming DM list but not in the DB
-            foreach (var newItemDm in requestDataModel.ProductItems.Where(itemDm => newItemProductItemIds.Contains(itemDm.ID)))
+            foreach (var newItemDm in requestDataModel.ProductItems.Where(itemDm => newItemProductItemIds.Contains(itemDm.ProductID)))
             {
                 var newItemEntity = _mapper.Map<ProductListItem>(newItemDm);
                 newItemEntity.ParentRequestID = element.ID; // Set the FK back to the parent
-                                                            // newItemEntity.ParentReceiptID = null; // Explicitly set other potential parent FKs to null
+                                                            // newItemEntity.ParentReceiptID = null;
+                                                            // Explicitly set other potential parent FKs to null
                 newItemEntity.IsDeleted = false; // New items are not deleted
                 element.ProductItems.Add(newItemEntity); // Add to the collection, EF tracks it
             }
 
             // Update existing items that are in both the DB and the incoming DM list
-            foreach (var updatedItemDm in requestDataModel.ProductItems.Where(itemDm => updatedProductItemIds.Contains(itemDm.ID)))
+            foreach (var updatedItemDm in requestDataModel.ProductItems.Where(itemDm => updatedProductItemIds.Contains(itemDm.ProductID)))
             {
-                var existingItemEntity = element.ProductItems.FirstOrDefault(item => item.ID == updatedItemDm.ID);
+                var existingItemEntity = element.ProductItems.FirstOrDefault(item => item.ID == updatedItemDm.ProductID);
                 if (existingItemEntity != null)
                 {
                     _mapper.Map(updatedItemDm, existingItemEntity); // Map changes onto existing entity
@@ -300,15 +298,15 @@ internal class RequestSC : IRequestSC
 
             // Repeat the same logic for Service Items
             var currentServiceItemIds = element.ServiceItems.Select(item => item.ID).ToList();
-            var newItemServiceItemIds = requestDataModel.ServiceItems.Where(itemDm => !currentServiceItemIds.Contains(itemDm.ID)).Select(itemDm => itemDm.ID).ToList();
-            var updatedServiceItemIds = requestDataModel.ServiceItems.Where(itemDm => currentServiceItemIds.Contains(itemDm.ID)).Select(itemDm => itemDm.ID).ToList();
-            var removedServiceItems = element.ServiceItems.Where(itemEntity => !requestDataModel.ServiceItems.Any(itemDm => itemDm.ID == itemEntity.ID)).ToList();
+            var newItemServiceItemIds = requestDataModel.ServiceItems.Where(itemDm => !currentServiceItemIds.Contains(itemDm.ServiceID)).Select(itemDm => itemDm.ServiceID).ToList();
+            var updatedServiceItemIds = requestDataModel.ServiceItems.Where(itemDm => currentServiceItemIds.Contains(itemDm.ServiceID)).Select(itemDm => itemDm.ServiceID).ToList();
+            var removedServiceItems = element.ServiceItems.Where(itemEntity => !requestDataModel.ServiceItems.Any(itemDm => itemDm.ServiceID == itemEntity.ID)).ToList();
 
             // Remove items
             foreach (var itemToRemove in removedServiceItems) { _dbContext.ServiceListItems.Remove(itemToRemove); /* Or Soft Delete */ }
 
             // Add new items
-            foreach (var newItemDm in requestDataModel.ServiceItems.Where(itemDm => newItemServiceItemIds.Contains(itemDm.ID)))
+            foreach (var newItemDm in requestDataModel.ServiceItems.Where(itemDm => newItemServiceItemIds.Contains(itemDm.ServiceID)))
             {
                 var newItemEntity = _mapper.Map<ServiceListItem>(newItemDm);
                 newItemEntity.ParentRequestID = element.ID; // Set the FK back
@@ -318,9 +316,9 @@ internal class RequestSC : IRequestSC
             }
 
             // Update existing items
-            foreach (var updatedItemDm in requestDataModel.ServiceItems.Where(itemDm => updatedServiceItemIds.Contains(itemDm.ID)))
+            foreach (var updatedItemDm in requestDataModel.ServiceItems.Where(itemDm => updatedServiceItemIds.Contains(itemDm.ServiceID)))
             {
-                var existingItemEntity = element.ServiceItems.FirstOrDefault(item => item.ID == updatedItemDm.ID);
+                var existingItemEntity = element.ServiceItems.FirstOrDefault(item => item.ID == updatedItemDm.ServiceID);
                 if (existingItemEntity != null)
                 {
                     _mapper.Map(updatedItemDm, existingItemEntity);
@@ -342,14 +340,14 @@ internal class RequestSC : IRequestSC
 
                 if (sqlState == "23505") // Unique constraint violation
                 {
-                    throw new ElementExistsException("Request", $"Updating request {requestDataModel.ID} failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                    throw new ElementExistsException("RequestEntityID", requestDataModel.ID);
                 }
                 else if (sqlState == "23503") // FK violation
                 {
-                    throw new StorageException($"Failed to update Request {requestDataModel.ID} due to a Foreign Key constraint violation ('{constraintName}'). Ensure referenced entities, products, services exist. Details: {ex.InnerException.Message}", ex);
+                    throw new StorageException(ex);
                 }
             }
-            throw new StorageException($"Failed to update Request {requestDataModel.ID}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
@@ -357,10 +355,9 @@ internal class RequestSC : IRequestSC
         catch (Exception ex) // Catch any other unexpected exceptions
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while updating Request {requestDataModel.ID}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
-
 
     public async Task DelElement(string id)
     {
@@ -374,7 +371,7 @@ internal class RequestSC : IRequestSC
 
             if (element == null)
             {
-                throw new ElementNotFoundException(id, "Active Request not found with this ID for deletion.");
+                throw new ElementNotFoundException(id);
             }
 
             // Perform soft delete on the request
@@ -395,7 +392,7 @@ internal class RequestSC : IRequestSC
         catch (DbUpdateException ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to soft delete Request {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException)
         {
@@ -405,7 +402,7 @@ internal class RequestSC : IRequestSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while soft deleting Request {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -422,7 +419,7 @@ internal class RequestSC : IRequestSC
 
             if (element == null || !element.IsDeleted) // Check if found AND is currently deleted
             {
-                throw new ElementNotFoundException(id, "No *deleted* Request found with this ID to restore.");
+                throw new ElementNotFoundException(id);
             }
 
             // Optional: Check for unique constraint conflicts upon restoration (e.g., if a unique index exists on non-deleted requests)
@@ -453,15 +450,15 @@ internal class RequestSC : IRequestSC
             {
                 string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
                 // Specific handling if restoring causes a unique constraint violation
-                throw new ElementExistsException("Request", $"Restoring request {id} failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("RequestEntityID", id);
             }
-            throw new StorageException($"Failed to restore Request {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; } // Re-throw ElementNotFoundException
         catch (Exception ex) // Catch any other unexpected exceptions
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while restoring Request {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -473,16 +470,5 @@ internal class RequestSC : IRequestSC
                          .Include(r => r.Customer) // Include Customer if always needed
                          .AsNoTracking() // Use AsNoTracking for read operations
                          .FirstOrDefaultAsync(x => x.ID == id && !x.IsDeleted); // Find by ID and exclude soft-deleted
-    }
-
-    // Helper method to get any request entity (including deleted) by ID, potentially including items for cascading
-    private Task<Request?> GetAnyRequestByID(string id)
-    {
-        return _dbContext.Requests
-                        .Include(r => r.Customer) // Include Customer if always needed
-                        .Include(r => r.ProductItems) // Include items for soft delete/restore logic
-                        .Include(r => r.ServiceItems) // Include items for soft delete/restore logic
-                        .AsNoTracking() // Use AsNoTracking
-                        .FirstOrDefaultAsync(x => x.ID == id);
     }
 }

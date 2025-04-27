@@ -16,5 +16,4 @@ public interface ICustomerSC
     Task AddElement(CustomerDM customerDataModel);
     Task UpdElement(CustomerDM customerDataModel);
     Task DelElement(string id);
-    Task RestoreElement(string id);
 }

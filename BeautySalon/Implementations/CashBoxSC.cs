@@ -1,9 +1,9 @@
-﻿using AutoMapper;
-using BeautySalon.DataModels;
-using BeautySalon.Entities;
-using BeautySalon.Exceptions;
+﻿using Microsoft.EntityFrameworkCore;
 using BeautySalon.StorageContracts;
-using Microsoft.EntityFrameworkCore;
+using BeautySalon.DataModels;
+using BeautySalon.Exceptions;
+using BeautySalon.Entities;
+using AutoMapper;
 
 namespace BeautySalon.Implementations;
 
@@ -44,7 +44,7 @@ internal class CashBoxSC : ICashBoxSC
         {
             // Clear the change tracker on error to prevent inconsistent state
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get CashBox list: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -61,7 +61,7 @@ internal class CashBoxSC : ICashBoxSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get CashBox by ID {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -74,7 +74,7 @@ internal class CashBoxSC : ICashBoxSC
             var existingElement = await _dbContext.CashBoxes.AsNoTracking().FirstOrDefaultAsync(x => x.ID == cashBoxDataModel.ID);
             if (existingElement != null)
             {
-                throw new ElementExistsException("ID", cashBoxDataModel.ID);
+                throw new ElementExistsException("CashBoxEntityID", cashBoxDataModel.ID);
             }
 
             var cashBoxEntity = _mapper.Map<CashBox>(cashBoxDataModel);
@@ -95,10 +95,10 @@ internal class CashBoxSC : ICashBoxSC
             {
                 // Attempt to provide more detail based on the constraint name if available
                 string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
-                throw new ElementExistsException("CashBox", $"Adding failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("CashBoxEntityName", constraintName);
             }
             // If not a unique constraint violation, re-throw as a generic storage exception
-            throw new StorageException($"Failed to add CashBox: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException)
         {
@@ -113,7 +113,7 @@ internal class CashBoxSC : ICashBoxSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while adding CashBox: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -128,12 +128,12 @@ internal class CashBoxSC : ICashBoxSC
             if (element == null)
             {
                 // If GetCashBoxByID (which filters !IsDeleted) returns null, the element is not found or is deleted
-                throw new ElementNotFoundException(cashBoxDataModel.ID, "Active CashBox not found with this ID for update.");
+                throw new ElementNotFoundException(cashBoxDataModel.ID);
             }
 
             if (element.IsDeleted)
             {
-                throw new ElementNotFoundException(cashBoxDataModel.ID, "Cannot update a deleted CashBox.");
+                throw new ElementNotFoundException(cashBoxDataModel.ID);
             }
 
             _mapper.Map(cashBoxDataModel, element);
@@ -146,11 +146,11 @@ internal class CashBoxSC : ICashBoxSC
         {
             _dbContext.ChangeTracker.Clear();
             // Unique constraint violations on update are less likely for CashBox unless updating a unique field other than ID
-            throw new StorageException($"Failed to update CashBox {cashBoxDataModel.ID}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException($"An unexpected error occurred while updating CashBox {cashBoxDataModel.ID}: {ex.Message}", ex); }}
+        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException(ex); }}
 
     public async Task DelElement(string id)
     {
@@ -160,7 +160,7 @@ internal class CashBoxSC : ICashBoxSC
             var element = await GetCashBoxByID(id); // Use async helper method to find active
             if (element == null)
             {
-                throw new ElementNotFoundException(id, "Active CashBox not found with this ID for deletion.");
+                throw new ElementNotFoundException(id);
             }
 
             // Perform soft delete
@@ -172,7 +172,7 @@ internal class CashBoxSC : ICashBoxSC
         catch (DbUpdateException ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to soft delete CashBox {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException)
         {
@@ -182,7 +182,7 @@ internal class CashBoxSC : ICashBoxSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while soft deleting CashBox {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -196,7 +196,7 @@ internal class CashBoxSC : ICashBoxSC
 
             if (element == null || !element.IsDeleted) // Check if found AND is currently deleted
             {
-                throw new ElementNotFoundException(id, "No *deleted* CashBox found with this ID to restore.");
+                throw new ElementNotFoundException(id);
             }
 
             // Restore the element
@@ -215,15 +215,15 @@ internal class CashBoxSC : ICashBoxSC
             {
                 string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
                 // Specific handling if restoring causes a unique constraint violation
-                throw new ElementExistsException("CashBox", $"Restoring cash box {id} failed due to a unique constraint violation ('{constraintName}'). Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("CashBoxEntityID", id);
             }
-            throw new StorageException($"Failed to restore CashBox {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
         catch (Exception ex) // Catch any other unexpected exceptions
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while restoring CashBox {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 

@@ -9,5 +9,4 @@ public interface ICashBoxSC
     Task AddElement(CashBoxDM cashBoxDataModel);
     Task UpdElement(CashBoxDM cashBoxDataModel);
     Task DelElement(string id);
-    Task RestoreElement(string id);
 }

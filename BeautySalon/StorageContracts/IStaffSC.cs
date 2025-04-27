@@ -5,7 +5,7 @@ namespace BeautySalon.StorageContracts;
 
 public interface IStaffSC
 {
-    Task<List<StaffDM>> GetList(bool onlyActive = true, string? staffID = null,
+    Task<List<StaffDM>> GetList(bool onlyActive = true,
         DateTime? fromBirthDate = null, DateTime? toBirthDate = null,
         DateTime? fromEmploymentDate = null, DateTime? toEmploymentDate = null,
         PostType? postType = null);
@@ -15,5 +15,4 @@ public interface IStaffSC
     Task AddElement(StaffDM staffDataModel);
     Task UpdElement(StaffDM staffDataModel);
     Task DelElement(string id);
-    Task RestoreElement(string id);
 }

@@ -1,14 +1,13 @@
-﻿using BeautySalon.StorageContracts;
+﻿using Microsoft.EntityFrameworkCore;
+using BeautySalon.StorageContracts;
 using BeautySalon.DataModels;
 using BeautySalon.Exceptions;
 using BeautySalon.Entities;
 using BeautySalon.Enums;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace BeautySalon.Implementations;
-// ReceiptSC, ProductSC, ServiceSC, ShiftSC, CashBoxSC
 
 internal class StaffSC : IStaffSC
 {
@@ -31,9 +30,7 @@ internal class StaffSC : IStaffSC
         _mapper = new Mapper(config);
     }
 
-    // Implement methods: (async)
-
-    public async Task<List<StaffDM>> GetList(bool onlyActive = true, string? staffID = null,
+    public async Task<List<StaffDM>> GetList(bool onlyActive = true,
         DateTime? fromBirthDate = null, DateTime? toBirthDate = null,
         DateTime? fromEmploymentDate = null, DateTime? toEmploymentDate = null,
         PostType? postType = null)
@@ -46,10 +43,6 @@ internal class StaffSC : IStaffSC
             if (onlyActive)
             {
                 query = query.Where(x => !x.IsDeleted);
-            }
-            if (staffID is not null)
-            {
-                query = query.Where(x => x.ID == staffID);
             }
             if (fromBirthDate is not null)
             {
@@ -82,7 +75,7 @@ internal class StaffSC : IStaffSC
             // Clear the change tracker on error to prevent inconsistent state
             _dbContext.ChangeTracker.Clear();
             // Wrap the exception in a custom StorageException
-            throw new StorageException($"Failed to get Staff list: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -98,7 +91,7 @@ internal class StaffSC : IStaffSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Staff by ID {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -114,7 +107,7 @@ internal class StaffSC : IStaffSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to get Staff by FIO '{fio}': {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -129,7 +122,7 @@ internal class StaffSC : IStaffSC
             var existingElement = await _dbContext.Workers.AsNoTracking().FirstOrDefaultAsync(x => x.ID == staffDataModel.ID);
             if (existingElement != null)
             {
-                throw new ElementExistsException("ID", staffDataModel.ID);
+                throw new ElementExistsException("StaffEntityID", staffDataModel.ID);
             }
 
             // Map DM to Entity
@@ -150,9 +143,9 @@ internal class StaffSC : IStaffSC
             // For PostgreSQL Npgsql, unique constraint violation often has SqlState '23505'
             if (ex.InnerException?.Message?.Contains("unique constraint") ?? false || (ex.InnerException?.GetType().Name == "PostgresException" && ex.InnerException.Message.Contains("23505")))
             {
-                throw new ElementExistsException("Staff", $"ID/FIO combination or other unique field value already exists. Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("StaffEntityINFO", "[ID/FIO combination or other unique field ]");
             }
-            throw new StorageException($"Failed to add Staff: {ex.Message}", ex); // Re-throw as generic StorageException
+            throw new StorageException(ex); // Re-throw as generic StorageException
         }
         catch (ValidationException)
         {
@@ -162,7 +155,7 @@ internal class StaffSC : IStaffSC
         catch (Exception ex) // Catch any other unexpected exceptions
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while adding Staff: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -184,7 +177,7 @@ internal class StaffSC : IStaffSC
             // Ensure you're not trying to update a soft-deleted element if onlyActive logic is standard
             if (element.IsDeleted)
             {
-                throw new ElementNotFoundException(staffDataModel.ID, "Cannot update a deleted Staff.");
+                throw new ElementNotFoundException(staffDataModel.ID);
             }
 
             // Map changes from DM to the existing EF Entity instance
@@ -203,9 +196,9 @@ internal class StaffSC : IStaffSC
             // Check inner exception for unique constraint violations on updated fields (e.g., FIO if it was updated)
             if (ex.InnerException?.Message?.Contains("unique constraint") ?? false || (ex.InnerException?.GetType().Name == "PostgresException" && ex.InnerException.Message.Contains("23505")))
             {
-                throw new ElementExistsException("Staff", $"Updated FIO or other unique field value already exists. Details: {ex.InnerException.Message}", ex);
+                throw new ElementExistsException("StaffEntityINFO", "[Updated FIO or other unique field]");
             }
-            throw new StorageException($"Failed to update Staff {staffDataModel.ID}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ValidationException)
         {
@@ -220,7 +213,7 @@ internal class StaffSC : IStaffSC
         catch (Exception ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while updating Staff {staffDataModel.ID}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -244,7 +237,7 @@ internal class StaffSC : IStaffSC
         catch (DbUpdateException ex)
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"Failed to soft delete Staff {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException) // Catch your custom not found exception
         {
@@ -254,7 +247,7 @@ internal class StaffSC : IStaffSC
         catch (Exception ex) // Catch any other unexpected exceptions
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while soft deleting Staff {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -271,7 +264,7 @@ internal class StaffSC : IStaffSC
             if (element == null)
             {
                 // Can throw ElementNotFoundException or a more specific one if needed
-                throw new ElementNotFoundException(id, "No deleted Staff found with this ID to restore.");
+                throw new ElementNotFoundException(id);
             }
 
             // Restore the element
@@ -291,7 +284,7 @@ internal class StaffSC : IStaffSC
             _dbContext.ChangeTracker.Clear();
             // Could potentially have unique constraint violation if restoring would create duplicates (e.g. FIO)
             // Add specific handling if necessary.
-            throw new StorageException($"Failed to restore Staff {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
         catch (ElementNotFoundException) // Catch your custom not found exception
         {
@@ -301,7 +294,7 @@ internal class StaffSC : IStaffSC
         catch (Exception ex) // Catch any other unexpected exceptions
         {
             _dbContext.ChangeTracker.Clear();
-            throw new StorageException($"An unexpected error occurred while restoring Staff {id}: {ex.Message}", ex);
+            throw new StorageException(ex);
         }
     }
 
@@ -311,13 +304,5 @@ internal class StaffSC : IStaffSC
         return _dbContext.Workers
                          .AsNoTracking() // Use AsNoTracking for read operations
                          .FirstOrDefaultAsync(x => x.ID == id && !x.IsDeleted); // Find by ID and exclude soft-deleted
-    }
-
-    // Helper method to get any staff entity (including deleted) by ID
-    private Task<Staff?> GetAnyStaffByID(string id)
-    {
-        return _dbContext.Workers
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(x => x.ID == id);
     }
 }
