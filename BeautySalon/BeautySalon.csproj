@@ -12,4 +12,8 @@
     <None Remove="Contracts\Services\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Implementations\" />
+  </ItemGroup>
+
 </Project>

@@ -5,7 +5,7 @@ namespace BeautySalon.DataModels;
 
 // Represents a header for a list of services, referenced by other entities via FK
 // Created because RequestDM and VisitDM request a ServiceList FK
-public class ServiceListHeaderDM(string id) : IValidation
+public class ServiceListHeader(string id) : IValidation
 {
     public string ID { get; private set; } = id; // Primary Key
 
