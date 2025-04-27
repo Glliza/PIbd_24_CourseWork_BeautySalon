@@ -2,5 +2,5 @@
 
 public class ElementDeletedException : Exception
 {
-    public ElementDeletedException(string id) : base($"Cannot modify a deleted item (id: {id})") { }
+    public ElementDeletedException(string id) : base($"[ ! ][ Cannot modify a deleted item (id: {id}) ]") { }
 }
