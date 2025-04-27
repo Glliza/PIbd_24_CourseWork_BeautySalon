@@ -9,25 +9,15 @@ internal class Shift
     [Key]
     public required string ID { get; set; }
 
-    // Foreign Key to CashBox
-    [ForeignKey(nameof(CashBoxID))] // FK column name in Shifts table
+    [ForeignKey(nameof(CashBoxID))] 
     public required string CashBoxID { get; set; }
-    public virtual CashBox CashBox { get; set; } = null!; // Navigation property (needs EF entity CashBox)
+    public virtual CashBox CashBox { get; set; } = null!;
 
-    // Foreign Key to Staff
-    [ForeignKey(nameof(StaffID))] // FK column name in Shifts table
+    [ForeignKey(nameof(StaffID))]
     public required string StaffID { get; set; }
-    public virtual Staff Staff { get; set; } = null!; // Navigation property (needs EF entity Staff)
-
+    public virtual Staff Staff { get; set; } = null!;
     public DateTime DateTimeStart { get; set; }
-
-    public DateTime? DateTimeFinish { get; set; } // Matches ShiftDM field name (Nullable)
-
-    // IsDeleted flag (can represent being archived or historically closed, separate from DateTimeFinish)
-    public bool IsDeleted { get; set; } = false; // Flag for soft deletion
-
-    // Optional => REQUIRED: Navigation back to Receipts processed during this shift (1-to-Many)
-    // You might link Receipts directly to Staff or Shift, depending on your process.
-    // If linking to Shift:
-    public virtual ICollection<Receipt>? Receipts { get; set; } = new List<Receipt>(); // Needs FK on Receipt
+    public DateTime? DateTimeFinish { get; set; }
+    public bool IsDeleted { get; set; } = false;
+    public virtual ICollection<Receipt>? Receipts { get; set; } = new List<Receipt>();
 }

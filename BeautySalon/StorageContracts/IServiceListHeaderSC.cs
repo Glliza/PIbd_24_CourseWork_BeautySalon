@@ -6,6 +6,6 @@ public interface IServiceListHeaderSC
 {
     Task<ServiceListHeader?> GetElementByID(string id);
     Task AddElement(ServiceListHeader headerDataModel);
-    Task DelElement(string id); // Soft delete the header
+    Task DelElement(string id);
     Task RestoreElement(string id);
 }
