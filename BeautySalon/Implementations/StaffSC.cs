@@ -3,6 +3,8 @@ using BeautySalon.DataModels;
 using BeautySalon.Exceptions;
 using BeautySalon.Entities;
 using BeautySalon.Enums;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace BeautySalon.Implementations;
