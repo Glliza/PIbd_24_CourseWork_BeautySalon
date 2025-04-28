@@ -16,9 +16,12 @@ internal class Staff
     public bool IsDeleted { get; set; } = false;
 
     [ForeignKey("StaffID")]
+    public virtual ICollection<Shift>? Shifts { get; set; }
+
+    [ForeignKey("StaffID")]
     public virtual ICollection<Receipt>? Receipts { get; set; }
 
-    [ForeignKey("WorkerId")] 
+    [ForeignKey("StaffID")] 
     public virtual ICollection<Visit>? Visits { get; set; }
 }
 

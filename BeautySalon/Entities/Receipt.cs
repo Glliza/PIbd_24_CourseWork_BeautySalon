@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BeautySalon.Entities;
 
-[Table("Recepies")]
+[Table("Receipts")]
 internal class Receipt
 {
     [Key]
@@ -17,11 +17,8 @@ internal class Receipt
     public bool IsCanceled { get; set; } = false;
     public virtual ICollection<ProductListItem> Products { get; set; } = new List<ProductListItem>();
 
-    [ForeignKey(nameof(CashBoxID))] 
-    public required string CashBoxID { get; set; } 
+    [ForeignKey(nameof(CashBoxID))]
+    public required string CashBoxID { get; set; }
     public virtual CashBox CashBox { get; set; } = null!;
-
-    [ForeignKey(nameof(VisitID))]
-    public string? VisitID { get; set; } 
-    public virtual Visit? Visit { get; set; } 
+    public bool IsDeleted { get; set; } = false;
 }

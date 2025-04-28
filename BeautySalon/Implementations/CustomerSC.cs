@@ -3,7 +3,6 @@ using BeautySalon.StorageContracts;
 using BeautySalon.DataModels;
 using BeautySalon.Exceptions;
 using BeautySalon.Entities;
-using BeautySalon;
 using AutoMapper;
 
 internal class CustomerSC : ICustomerSC
@@ -63,6 +62,7 @@ internal class CustomerSC : ICustomerSC
         try
         {
             var customerEntity = await GetCustomerByID(id);
+            return _mapper.Map<CustomerDM>(customerEntity); // [ !!! ] *
         }
         catch (Exception ex)
         {

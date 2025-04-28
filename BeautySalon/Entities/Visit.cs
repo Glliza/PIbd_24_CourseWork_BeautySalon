@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using BeautySalon.DataModels;
 
 namespace BeautySalon.Entities;
 
@@ -12,22 +11,26 @@ internal class Visit
 
     [ForeignKey(nameof(CustomerID))]
     public required string CustomerID { get; set; }
-    public virtual Customer Customer { get; set; } = null!; 
+    public virtual Customer Customer { get; set; } = null!;
 
     [ForeignKey(nameof(StaffID))]
     public required string StaffID { get; set; }
     public virtual Staff Staff { get; set; } = null!;
 
-    [ForeignKey(nameof(ProductListID))] 
-    public string? ProductListID { get; set; }
-    public virtual ProductListHeader? ProductListHeader { get; set; } 
+    // Foreign Key to Request (nullable, as Visit can potentially exist without a direct Request?)
+    // Added RequestID based on the DbContext mapping from Request to Many Visits
+    [ForeignKey(nameof(RequestID))]
+    public string? RequestID { get; set; }
+    public virtual Request? Request { get; set; }
 
-    [ForeignKey(nameof(ServiceListID))] 
-    public required string ServiceListID { get; set; }
-    public virtual ServiceListHeader ServiceListHeader { get; set; } = null!;
+    // Removed Properties related to ProductListHeader and ServiceListHeader [ ! ]
+
     public bool Status { get; set; }
     public DateTime DateTimeOfVisit { get; set; }
     public decimal TotalPrice { get; set; }
     public bool IsDeleted { get; set; } = false;
-    public virtual Receipt? Receipt { get; set; }
+
+    // Navigation property for ServiceListItems (1 Visit to Many ServiceListItems)
+    // Added based on ServiceListItem having ParentVisitID and DbContext mapping
+    public virtual ICollection<ServiceListItem>? ServiceItems { get; set; } = new List<ServiceListItem>();
 }

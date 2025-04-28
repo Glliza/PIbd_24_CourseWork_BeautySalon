@@ -35,11 +35,10 @@ internal class ReceiptSC : IReceiptSC
     {
         try
         {
-            var query = _dbContext.Recepies // Use DbSet name
+            var query = _dbContext.Receipts // Use DbSet name
                                   .Include(r => r.Staff)
                                   .Include(r => r.Customer) // Customer is nullable
                                   .Include(r => r.CashBox)
-                                  .Include(r => r.Visit) // Visit is nullable
                                   .AsQueryable();
 
             if (staffID is not null) query = query.Where(x => x.StaffID == staffID);
@@ -76,11 +75,10 @@ internal class ReceiptSC : IReceiptSC
     {
         try
         {
-            var receiptEntity = await _dbContext.Recepies
+            var receiptEntity = await _dbContext.Receipts
                                                 .Include(r => r.Staff)
                                                 .Include(r => r.Customer)
                                                 .Include(r => r.CashBox)
-                                                .Include(r => r.Visit)
                                                 .Include(r => r.Products) // Include ProductListItems
                                                     .ThenInclude(pli => pli.Product) // Include related Product
                                                 .AsNoTracking()
@@ -102,7 +100,7 @@ internal class ReceiptSC : IReceiptSC
         {
             receiptDataModel.Validate(); // Includes validating list items
 
-            var existingElement = await _dbContext.Recepies.AsNoTracking().FirstOrDefaultAsync(x => x.ID == receiptDataModel.ID);
+            var existingElement = await _dbContext.Receipts.AsNoTracking().FirstOrDefaultAsync(x => x.ID == receiptDataModel.ID);
             if (existingElement != null) throw new ElementExistsException("ID", receiptDataModel.ID);
 
             // Validate existence of referenced entities
@@ -135,13 +133,14 @@ internal class ReceiptSC : IReceiptSC
                 .Select(itemDm => {
                     var itemEntity = _mapper.Map<ProductListItem>(itemDm);
                     itemEntity.ParentReceiptID = receiptEntity.ID; // Set the FK back to the parent receipt
-                                                                   // itemEntity.ParentRequestID = null; // Explicitly set other potential parent FKs to null
-                    itemEntity.IsDeleted = false; // Items are not deleted initially
+                                                                   // itemEntity.ParentRequestID = null;
+                                                                   // Explicitly set other potential parent FKs to null
+                    itemEntity.IsDeleted = false; // > not deleted initially
                     return itemEntity;
                 }).ToList();
 
 
-            await _dbContext.Recepies.AddAsync(receiptEntity);
+            await _dbContext.Receipts.AddAsync(receiptEntity);
             await _dbContext.SaveChangesAsync();
         }
         catch (DbUpdateException ex)
@@ -168,7 +167,7 @@ internal class ReceiptSC : IReceiptSC
         {
             receiptDataModel.Validate();
 
-            var element = await _dbContext.Recepies
+            var element = await _dbContext.Receipts
                                           .Include(r => r.Products)
                                           .FirstOrDefaultAsync(x => x.ID == receiptDataModel.ID);
 
@@ -241,7 +240,7 @@ internal class ReceiptSC : IReceiptSC
     {
         try
         {
-            var element = await _dbContext.Recepies
+            var element = await _dbContext.Receipts
                                           .Include(r => r.Products)
                                           .FirstOrDefaultAsync(x => x.ID == id);
 
@@ -262,11 +261,10 @@ internal class ReceiptSC : IReceiptSC
     // Helper method to get an active receipt entity by ID (header only)
     private Task<Receipt?> GetReceiptByID(string id)
     {
-        return _dbContext.Recepies
+        return _dbContext.Receipts
                          .Include(r => r.Staff)
                          .Include(r => r.Customer)
                          .Include(r => r.CashBox)
-                         .Include(r => r.Visit)
                          .AsNoTracking()
                          .FirstOrDefaultAsync(x => x.ID == id);
     }

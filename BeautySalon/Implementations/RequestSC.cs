@@ -50,6 +50,7 @@ internal class RequestSC : IRequestSC
     {
         try
         {
+            // !!!
             var query = _dbContext.Requests
                                   .Include(r => r.Customer)
                                   // Decide if you need to include items for list view - often not needed for summary list
