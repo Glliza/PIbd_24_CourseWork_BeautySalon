@@ -6,7 +6,7 @@ using BeautySalon.Entities;
 using BeautySalon.Enums;
 using AutoMapper;
 
-namespace BeautySalon.Implementations;
+namespace BeautySalon.SCImplementations;
 
 internal class RequestSC : IRequestSC
 {

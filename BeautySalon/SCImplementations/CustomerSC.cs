@@ -5,6 +5,8 @@ using BeautySalon.Exceptions;
 using BeautySalon.Entities;
 using AutoMapper;
 
+namespace BeautySalon.SCImplementations;
+
 internal class CustomerSC : ICustomerSC
 {
     private readonly SalonDbContext _dbContext;

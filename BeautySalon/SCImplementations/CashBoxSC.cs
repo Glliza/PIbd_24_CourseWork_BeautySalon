@@ -5,7 +5,7 @@ using BeautySalon.Exceptions;
 using BeautySalon.Entities;
 using AutoMapper;
 
-namespace BeautySalon.Implementations;
+namespace BeautySalon.SCImplementations;
 
 internal class CashBoxSC : ICashBoxSC
 {
