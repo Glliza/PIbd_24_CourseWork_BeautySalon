@@ -10,7 +10,7 @@ namespace BeautySalon.SCImplementations;
 internal class CashBoxSC : ICashBoxSC
 {
     private readonly SalonDbContext _dbContext;
-    private readonly Mapper _mapper; // Using concrete Mapper as in your template
+    private readonly Mapper _mapper;
 
     public CashBoxSC(SalonDbContext dbContext)
     {
@@ -19,30 +19,30 @@ internal class CashBoxSC : ICashBoxSC
         var config = new MapperConfiguration(cfg =>
         {
             cfg.CreateMap<CashBox, CashBoxDM>();
-            // Ignore properties not present in DM (like IsDeleted) or handled separately
+            // Ignore properties not present in DM (like IsDeleted) or handled separately [ ! ]
             cfg.CreateMap<CashBoxDM, CashBox>()
-               .ForMember(dest => dest.IsDeleted, opt => opt.Ignore()); // IsDeleted is managed by SC logic, not mapped directly
+               .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
+            // IsDeleted is managed by SC logic, not mapped directly [ * ]
         });
-        _mapper = new Mapper(config); // Create Mapper instance
+        _mapper = new Mapper(config);
     }
 
     public async Task<List<CashBoxDM>> GetList(bool onlyActive = true)
     {
         try
         {
-            var query = _dbContext.CashBoxes.AsQueryable(); // Use the correct DbSet name
+            var query = _dbContext.CashBoxes.AsQueryable();
             if (onlyActive)
             {
                 query = query.Where(x => !x.IsDeleted);
             }
 
-            // Execute the query asynchronously and map results to DM
-            var cashBoxEntities = await query.AsNoTracking().ToListAsync(); // Use AsNoTracking for read-only queries
-            return _mapper.Map<List<CashBoxDM>>(cashBoxEntities); // Map List of Entities to List of DMs
+            var cashBoxEntities = await query.AsNoTracking().ToListAsync();
+            // Use AsNoTracking for read-only queries [ * ]
+            return _mapper.Map<List<CashBoxDM>>(cashBoxEntities); // Map List of Entities to List of DMs [ ! ]
         }
         catch (Exception ex)
         {
-            // Clear the change tracker on error to prevent inconsistent state
             _dbContext.ChangeTracker.Clear();
             throw new StorageException(ex);
         }
@@ -52,9 +52,8 @@ internal class CashBoxSC : ICashBoxSC
     {
         try
         {
-            // Find the active cash box entity by ID
-            var cashBoxEntity = await GetCashBoxByID(id); // Use async helper method
-
+            // > active cash box
+            var cashBoxEntity = await GetCashBoxByID(id);
             // Map the entity to DM, returns null if entity is null
             return _mapper.Map<CashBoxDM>(cashBoxEntity);
         }
@@ -78,15 +77,12 @@ internal class CashBoxSC : ICashBoxSC
             }
 
             var cashBoxEntity = _mapper.Map<CashBox>(cashBoxDataModel);
-            cashBoxEntity.IsDeleted = false; // Explicitly set IsDeleted flag to false when adding
-
-            // Add the entity to the DbContext change tracker
-            await _dbContext.CashBoxes.AddAsync(cashBoxEntity); // Use async Add
-
-
+            cashBoxEntity.IsDeleted = false;
+            // Add the entity to the DbContext : change tracker [ ! ]
+            await _dbContext.CashBoxes.AddAsync(cashBoxEntity);
             await _dbContext.SaveChangesAsync();
         }
-        catch (DbUpdateException ex) // Catch EF Core specific exceptions
+        catch (DbUpdateException ex)
         {
             _dbContext.ChangeTracker.Clear();
             // Check inner exception for specific database errors (e.g., unique index violation)
@@ -103,12 +99,12 @@ internal class CashBoxSC : ICashBoxSC
         catch (ValidationException)
         {
             _dbContext.ChangeTracker.Clear();
-            throw; // Re-throw validation exceptions directly
+            throw;
         }
         catch (ElementExistsException)
         {
             _dbContext.ChangeTracker.Clear();
-            throw; // Re-throw ElementExistsException directly
+            throw;
         }
         catch (Exception ex)
         {
@@ -123,8 +119,8 @@ internal class CashBoxSC : ICashBoxSC
         {
             cashBoxDataModel.Validate();
 
-            // Find the existing *active* entity by ID
-            var element = await GetCashBoxByID(cashBoxDataModel.ID); // Use async helper method to find active
+            // Find the existing *active* entity [ * ]
+            var element = await GetCashBoxByID(cashBoxDataModel.ID);
             if (element == null)
             {
                 // If GetCashBoxByID (which filters !IsDeleted) returns null, the element is not found or is deleted
@@ -157,7 +153,7 @@ internal class CashBoxSC : ICashBoxSC
         try
         {
             // Find the active cash box entity to soft delete
-            var element = await GetCashBoxByID(id); // Use async helper method to find active
+            var element = await GetCashBoxByID(id); // Use async helper method to find active [ * ]
             if (element == null)
             {
                 throw new ElementNotFoundException(id);
@@ -186,47 +182,6 @@ internal class CashBoxSC : ICashBoxSC
         }
     }
 
-    public async Task RestoreElement(string id)
-    {
-        try
-        {
-            // Find the soft-deleted cash box entity to restore
-            // Note: Need to find *including* deleted ones here and check if it *is* deleted
-            var element = await GetAnyCashBoxByID(id);
-
-            if (element == null || !element.IsDeleted) // Check if found AND is currently deleted
-            {
-                throw new ElementNotFoundException(id);
-            }
-
-            // Restore the element
-            element.IsDeleted = false;
-
-            // Attach the entity if AsNoTracking was used to load it, and mark as modified
-            _dbContext.CashBoxes.Attach(element);
-            _dbContext.Entry(element).State = EntityState.Modified;
-
-            await _dbContext.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            _dbContext.ChangeTracker.Clear();
-            if (ex.InnerException != null && (ex.InnerException.Message.Contains("unique constraint") || (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")))
-            {
-                string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
-                // Specific handling if restoring causes a unique constraint violation
-                throw new ElementExistsException("CashBoxEntityID", id);
-            }
-            throw new StorageException(ex);
-        }
-        catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (Exception ex) // Catch any other unexpected exceptions
-        {
-            _dbContext.ChangeTracker.Clear();
-            throw new StorageException(ex);
-        }
-    }
-
     // Helper method to get an active cash box entity by ID
     private Task<CashBox?> GetCashBoxByID(string id)
     {
@@ -235,7 +190,8 @@ internal class CashBoxSC : ICashBoxSC
                          .FirstOrDefaultAsync(x => x.ID == id && !x.IsDeleted); // Find by ID and exclude soft-deleted
     }
 
-    // Helper method to get any cash box entity (including deleted) by ID
+    // Helper method to get any cash box entity (including deleted) by ID [ ! ]
+    // Could be used to Restore method [ * ]
     private Task<CashBox?> GetAnyCashBoxByID(string id)
     {
         return _dbContext.CashBoxes

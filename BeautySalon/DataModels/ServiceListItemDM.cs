@@ -1,28 +1,28 @@
 ﻿using BeautySalon.Infrastructure;
+using BeautySalon.Extensions;
 using BeautySalon.Exceptions;
 
 namespace BeautySalon.DataModels;
 
 public class ServiceListItemDM(string requestIdOrVisitId, string serviceId, int quantityOrSessions, int totalItemDuration, decimal totalItemPrice) : IValidation // Renamed from ServiceList
 {
-    // FK to the parent entity (RequestDM or VisitDM)
-    public string RequestOrVisitID { get; private set; } = requestIdOrVisitId; // FK
+    public string RequestID { get; private set; } = requestIdOrVisitId;
 
-    public string ServiceID { get; private set; } = serviceId; // FK to ServiceDM
+    public string ServiceID { get; private set; } = serviceId;
 
-    // Amount/Quantity of this service (e.g., 1 session, 3 sessions)
+    // Amount/Quantity of this service (e.g., 5 sessions)
     public int QuantityOrSessions { get; private set; } = quantityOrSessions;
 
-    // Calculated total duration for this line item (e.g., Quantity * Service.DurationMinutes)
     public int TotalItemDuration { get; private set; } = totalItemDuration;
+    // (e.g., Quantity * Service.DurationMinutes)
 
-    // Calculated total price for this line item (e.g., Quantity * Service.BasePrice, potentially with discounts)
-    public decimal TotalItemPrice { get; private set; } = totalItemPrice; // Use decimal
+    public decimal TotalItemPrice { get; private set; } = totalItemPrice;
+    // (e.g., Quantity * Service.BasePrice, potentially with discounts)
 
     public void Validate()
     {
-        if (RequestOrVisitID.IsEmpty()) throw new ValidationException("ServiceListItemDM: RequestOrVisitID is empty");
-        if (!RequestOrVisitID.IsGuid()) throw new ValidationException("ServiceListItemDM: RequestOrVisitID is not a unique identifier");
+        if (RequestID.IsEmpty()) throw new ValidationException("ServiceListItemDM: RequestOrVisitID is empty");
+        if (!RequestID.IsGuid()) throw new ValidationException("ServiceListItemDM: RequestOrVisitID is not a unique identifier");
         if (ServiceID.IsEmpty()) throw new ValidationException("ServiceListItemDM: ServiceID is empty");
         if (!ServiceID.IsGuid()) throw new ValidationException("ServiceListItemDM: ServiceID is not a unique identifier");
         if (QuantityOrSessions <= 0) throw new ValidationException("ServiceListItemDM: QuantityOrSessions is less than or equal to 0");

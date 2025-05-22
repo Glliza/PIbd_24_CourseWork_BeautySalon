@@ -1,4 +1,5 @@
 ﻿using BeautySalon.Infrastructure;
+using BeautySalon.Extensions;
 using BeautySalon.Exceptions;
 
 namespace BeautySalon.DataModels;

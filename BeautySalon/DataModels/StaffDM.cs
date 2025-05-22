@@ -1,4 +1,5 @@
 ﻿using BeautySalon.Infrastructure;
+using BeautySalon.Extensions;
 using BeautySalon.Exceptions;
 using BeautySalon.Enums;
 
@@ -18,4 +19,3 @@ public class StaffDM(string id, string fio, PostType post, DateTime birthDate) :
         if (FIO.IsEmpty()) throw new ValidationException("StaffDM: FIO is empty");
     }
 }
-

@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using BeautySalon.Infrastructure;
 using BeautySalon.Exceptions;
+using BeautySalon.Extensions;
 
 namespace BeautySalon.DataModels;
 

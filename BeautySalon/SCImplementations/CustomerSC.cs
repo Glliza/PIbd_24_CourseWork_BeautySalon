@@ -34,11 +34,13 @@ internal class CustomerSC : ICustomerSC
             }
             if (fio is not null)
             {
-                query = query.Where(x => x.FIO.Contains(fio)); // Use Contains for partial FIO search
+                query = query.Where(x => x.FIO.Contains(fio));
+                // Use Contains for partial FIO search [ ! ]
             }
             if (phoneNumber is not null)
             {
-                query = query.Where(x => x.PhoneNumber == phoneNumber); // Exact match for phone number
+                query = query.Where(x => x.PhoneNumber == phoneNumber);
+                // Exact match for phone number [ ! ]
             }
             if (fromBirthDate is not null)
             {
@@ -49,7 +51,7 @@ internal class CustomerSC : ICustomerSC
                 query = query.Where(x => x.BirthDate < toBirthDate.Value.AddDays(1));
             }
 
-            var customerEntities = await query.AsNoTracking().ToListAsync(); // Use AsNoTracking
+            var customerEntities = await query.AsNoTracking().ToListAsync();
             return _mapper.Map<List<CustomerDM>>(customerEntities);
         }
         catch (Exception ex)
@@ -101,7 +103,7 @@ internal class CustomerSC : ICustomerSC
             {
                 throw new ElementExistsException("ID", customerDataModel.ID);
             }
-            // Optional: Check for existing phone number if it should be unique
+            // Optional: Check for existing phone number if it should be unique:
             var existingPhoneCustomer = await _dbContext.Customers.AsNoTracking().FirstOrDefaultAsync(x => x.PhoneNumber == customerDataModel.PhoneNumber && !x.IsDeleted);
             if (existingPhoneCustomer != null)
             {
@@ -133,17 +135,17 @@ internal class CustomerSC : ICustomerSC
         {
             customerDataModel.Validate();
 
-            var element = await GetCustomerByID(customerDataModel.ID); // Find active
+            var element = await GetCustomerByID(customerDataModel.ID); // Find active [ * ]
             if (element == null)
             {
                 throw new ElementNotFoundException(customerDataModel.ID);
             }
-            if (element.IsDeleted) // Prevent updating if soft-deleted
+            if (element.IsDeleted) // Prevent updating if soft-deleted [ * ]
             {
                 throw new ElementNotFoundException(customerDataModel.ID);
             }
 
-            // Optional: Check if updated phone number is unique and belongs to a different active customer
+            // Optional: Check if updated phone number is unique and belongs to a different active customer:
             if (!string.IsNullOrEmpty(customerDataModel.PhoneNumber))
             {
                 var existingPhoneCustomer = await _dbContext.Customers.AsNoTracking().FirstOrDefaultAsync(x => x.PhoneNumber == customerDataModel.PhoneNumber && x.ID != customerDataModel.ID && !x.IsDeleted);
@@ -204,61 +206,11 @@ internal class CustomerSC : ICustomerSC
         }
     }
 
-    public async Task RestoreElement(string id)
-    {
-        try
-        {
-            var element = await GetAnyCustomerByID(id); // Find any, including deleted
-
-            if (element == null || !element.IsDeleted) // Check if found and *is* deleted
-            {
-                throw new ElementNotFoundException(id);
-            }
-
-            // Optional: Check if restoring would create a phone number conflict with an existing active customer
-            if (!string.IsNullOrEmpty(element.PhoneNumber))
-            {
-                var existingPhoneCustomer = await _dbContext.Customers.AsNoTracking().FirstOrDefaultAsync(x => x.PhoneNumber == element.PhoneNumber && x.ID != element.ID && !x.IsDeleted);
-                if (existingPhoneCustomer != null)
-                {
-                    throw new ElementExistsException("CustomerEntityPhoneNumber", element.PhoneNumber);
-                }
-            }
-
-            element.IsDeleted = false;
-            _dbContext.Customers.Attach(element);
-            _dbContext.Entry(element).State = EntityState.Modified;
-
-            await _dbContext.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            _dbContext.ChangeTracker.Clear();
-            if (ex.InnerException?.Message?.Contains("unique constraint") ?? false || (ex.InnerException?.GetType().Name == "PostgresException" && ex.InnerException.Message.Contains("23505")))
-            {
-                // Specific handling if restoring causes a unique constraint violation (e.g., phone number)
-                throw new ElementExistsException("CustomerEntityID", id);
-            }
-            throw new StorageException(ex);
-        }
-        catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (ElementExistsException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException(ex); }
-    }
-
-    // Helper method to get an active customer entity by ID
+    // Helper method to get an active customer
     private Task<Customer?> GetCustomerByID(string id)
     {
         return _dbContext.Customers
                          .AsNoTracking()
                          .FirstOrDefaultAsync(x => x.ID == id && !x.IsDeleted);
-    }
-
-    // Helper method to get any customer entity (including deleted) by ID
-    private Task<Customer?> GetAnyCustomerByID(string id)
-    {
-        return _dbContext.Customers
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(x => x.ID == id);
     }
 }

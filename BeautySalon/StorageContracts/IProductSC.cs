@@ -16,5 +16,6 @@ public interface IProductSC
     Task AddElement(ProductDM productDataModel);
     Task UpdElement(ProductDM productDataModel);
     Task DelElement(string id);
+    Task RestoreElement(string id);
     Task UpdateStockQuantityAsync(string productId, int quantityChange);
 }

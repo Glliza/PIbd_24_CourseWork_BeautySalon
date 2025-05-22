@@ -17,5 +17,4 @@ public interface IRequestSC
     Task AddElement(RequestDM requestDataModel);
     Task UpdElement(RequestDM requestDataModel);
     Task DelElement(string id);
-    Task RestoreElement(string id);
 }

@@ -24,4 +24,3 @@ internal class Staff
     [ForeignKey("StaffID")] 
     public virtual ICollection<Visit>? Visits { get; set; }
 }
-

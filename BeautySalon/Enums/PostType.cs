@@ -1,11 +1,10 @@
-﻿namespace BeautySalon.Enums
+﻿namespace BeautySalon.Enums;
+
+public enum PostType
 {
-    public enum PostType
-    {
-        None = 0,
-        Administrator = 1,
-        Cosmetologist = 2,
-        Visagiste = 3,
-        NailMaster = 4
-    }
+    None = 0,
+    Administrator = 1,
+    Cosmetologist = 2,
+    Visagiste = 3,
+    NailMaster = 4
 }

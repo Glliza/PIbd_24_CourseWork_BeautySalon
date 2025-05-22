@@ -118,10 +118,10 @@ internal class VisitSC : IVisitSC
             var serviceListHeaderExists = await _dbContext.Services.AsNoTracking().AnyAsync(h => h.ID == visitDataModel.ServiceListID && !h.IsDeleted);
             if (!serviceListHeaderExists) throw new ElementNotFoundException(visitDataModel.ServiceListID);
 
-            if (!string.IsNullOrEmpty(visitDataModel.ProductListID))
+            if (!string.IsNullOrEmpty(visitDataModel.ServiceListID))
             {
-                var productListHeaderExists = await _dbContext.Products.AsNoTracking().AnyAsync(h => h.ID == visitDataModel.ProductListID && !h.IsDeleted);
-                if (!productListHeaderExists) throw new ElementNotFoundException(visitDataModel.ProductListID);
+                var productListHeaderExists = await _dbContext.Products.AsNoTracking().AnyAsync(h => h.ID == visitDataModel.ServiceListID && !h.IsDeleted);
+                if (!productListHeaderExists) throw new ElementNotFoundException(visitDataModel.ServiceListID);
             }
 
             var visitEntity = _mapper.Map<Visit>(visitDataModel);
@@ -240,7 +240,6 @@ internal class VisitSC : IVisitSC
             // If deleting headers/items, you'd load them here and set IsDeleted = true.
             // e.g., if (element.ProductListHeader != null) element.ProductListHeader.IsDeleted = true;
             // if (element.ServiceListHeader != null) element.ServiceListHeader.IsDeleted = true;
-            // if (element.ProductListHeader?.Items != null) foreach(var item in element.ProductListHeader.Items) item.IsDeleted = true;
             // if (element.ServiceListHeader?.Items != null) foreach(var item in element.ServiceListHeader.Items) item.IsDeleted = true;
             // This requires including headers and items in the GetVisitByID helper method.
 
@@ -264,76 +263,24 @@ internal class VisitSC : IVisitSC
         }
     }
 
-    // Implement RestoreElement method (async)
-    public async Task RestoreElement(string id)
-    {
-        try
-        {
-            // Find the soft-deleted visit entity to restore
-            // Note: Need to find *including* deleted ones here and check if it *is* deleted
-            var element = await GetAnyVisitByID(id);
-
-            if (element == null || !element.IsDeleted) // Check if found AND is currently deleted
-            {
-                throw new ElementNotFoundException(id);
-            }
-
-            // Restore the element
-            element.IsDeleted = false;
-
-
-            // Attach the entity if AsNoTracking was used to load it, and mark as modified
-            _dbContext.Visits.Attach(element);
-            _dbContext.Entry(element).State = EntityState.Modified;
-
-            // Note: You might also want to restore related entities here if they were soft deleted along with the visit.
-            // This requires loading them and setting IsDeleted = false.
-            // e.g., if (element.ProductListHeader != null && element.ProductListHeader.IsDeleted) element.ProductListHeader.IsDeleted = false;
-            // if (element.ServiceListHeader != null && element.ServiceListHeader.IsDeleted) element.ServiceListHeader.IsDeleted = false;
-            // etc.
-
-            await _dbContext.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            _dbContext.ChangeTracker.Clear();
-            if (ex.InnerException != null && (ex.InnerException.Message.Contains("unique constraint") || (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")))
-            {
-                string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
-                // Specific handling if restoring causes a unique constraint violation
-                throw new ElementExistsException("VisitEntityID", id);
-            }
-            throw new StorageException(ex);
-        }
-        catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (Exception ex)
-        {
-            _dbContext.ChangeTracker.Clear();
-            throw new StorageException(ex);
-        }
-    }
-
     // Helper method to get an active visit entity by ID, including related Customer and Staff
     private Task<Visit?> GetVisitByID(string id)
     {
         return _dbContext.Visits
                          .Include(v => v.Customer)
                          .Include(v => v.Staff)
-                         // Include headers and items if needed for business logic or soft delete cascading
-                         // .Include(v => v.ProductListHeader).ThenInclude(h => h.Items)
-                         // .Include(v => v.ServiceListHeader).ThenInclude(h => h.Items)
-                         .AsNoTracking() // Use AsNoTracking for read operations
-                         .FirstOrDefaultAsync(x => x.ID == id && !x.IsDeleted); // Find by ID and exclude soft-deleted
+                         .Include(v => v.Request) // to link the request
+                         .Include(v => v.Services)
+                         .FirstOrDefaultAsync(x => x.ID == id && !x.IsDeleted);
     }
 
-    // Helper method to get any visit entity (including deleted) by ID, including related Customer and Staff
+    // Helper method to get any visit entity (including deleted) [ * ] for Task RestoreElement(string id); (unused)
     private Task<Visit?> GetAnyVisitByID(string id)
     {
         return _dbContext.Visits
                         .Include(v => v.Customer)
                         .Include(v => v.Staff)
                         // Include headers and items if needed for business logic or soft delete cascading
-                        // .Include(v => v.ProductListHeader).ThenInclude(h => h.Items)
                         // .Include(v => v.ServiceListHeader).ThenInclude(h => h.Items)
                         .AsNoTracking()
                         .FirstOrDefaultAsync(x => x.ID == id);

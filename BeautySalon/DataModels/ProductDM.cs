@@ -1,5 +1,6 @@
 ﻿using BeautySalon.Infrastructure;
 using BeautySalon.Exceptions;
+using BeautySalon.Extensions;
 using BeautySalon.Enums;
 
 namespace BeautySalon.DataModels;

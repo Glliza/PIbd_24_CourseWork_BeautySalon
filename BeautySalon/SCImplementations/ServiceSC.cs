@@ -206,56 +206,10 @@ internal class ServiceSC : IServiceSC
         catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException(ex); }
     }
 
-    public async Task RestoreElement(string id)
-    {
-        try
-        {
-            var element = await GetAnyServiceByID(id);
-
-            if (element == null || !element.IsDeleted)
-            {
-                throw new ElementNotFoundException(id);
-            }
-
-            var existingServiceByName = await _dbContext.Services.AsNoTracking().FirstOrDefaultAsync(x => x.Name == element.Name && x.ID != element.ID && !x.IsDeleted);
-            if (existingServiceByName != null)
-            {
-                throw new ElementExistsException("ServiceEntityNAME", element.Name);
-            }
-
-            element.IsDeleted = false;
-
-            _dbContext.Services.Attach(element);
-            _dbContext.Entry(element).State = EntityState.Modified;
-
-            await _dbContext.SaveChangesAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            _dbContext.ChangeTracker.Clear();
-            if (ex.InnerException != null && (ex.InnerException.Message.Contains("unique constraint") || (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")))
-            {
-                string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
-                throw new ElementExistsException("ServiceEntityID", id);
-            }
-            throw new StorageException(ex);
-        }
-        catch (ElementNotFoundException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (ElementExistsException) { _dbContext.ChangeTracker.Clear(); throw; }
-        catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException(ex); }
-    }
-
     private Task<Service?> GetServiceByID(string id)
     {
         return _dbContext.Services
                          .AsNoTracking()
                          .FirstOrDefaultAsync(x => x.ID == id && !x.IsDeleted);
-    }
-
-    private Task<Service?> GetAnyServiceByID(string id)
-    {
-        return _dbContext.Services
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(x => x.ID == id);
     }
 }

@@ -18,5 +18,6 @@ public interface IShiftSC
     Task AddElement(ShiftDM shiftDataModel);
     Task UpdElement(ShiftDM shiftDataModel);
     Task DelElement(string id);
+    Task RestoreElement(string id);
     Task EndShiftAsync(string shiftId, DateTime dateTimeFinish);
 }

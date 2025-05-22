@@ -197,7 +197,7 @@ internal class ReceiptSC : IReceiptSC
             {
                 var newItemEntity = _mapper.Map<ProductListItem>(newItemDm);
                 newItemEntity.ParentReceiptID = element.ID;
-                // newItemEntity.ParentRequestID = null;
+                newItemEntity.ParentRequestID = null;
                 newItemEntity.IsDeleted = false;
                 element.Products.Add(newItemEntity);
             }
@@ -210,7 +210,7 @@ internal class ReceiptSC : IReceiptSC
                 if (existingItemEntity != null)
                 {
                     _mapper.Map(updatedItemDm, existingItemEntity);
-                    // existingItemEntity.IsDeleted = false; // if restoring via update
+                    // existingItemEntity.IsDeleted = false; --> if restoring via update
                 }
             }
 
@@ -258,7 +258,7 @@ internal class ReceiptSC : IReceiptSC
         catch (Exception ex) { _dbContext.ChangeTracker.Clear(); throw new StorageException(ex); }
     }
 
-    // Helper method to get an active receipt entity by ID (header only)
+    // Get an active receipt entity by ID (header only):
     private Task<Receipt?> GetReceiptByID(string id)
     {
         return _dbContext.Receipts

@@ -1,17 +1,17 @@
 ﻿using BeautySalon.Infrastructure;
+using BeautySalon.Extensions;
 using BeautySalon.Exceptions;
 
 namespace BeautySalon.DataModels;
 
-public class ProductListItemDM(string receiptOrRequestId, string productId, int amount) : IValidation // Renamed from ProductListDM
+public class ProductListItemDM(string receiptOrRequestId, string productId, int amount) : IValidation
 {
-    // FK to the parent entity (ReceiptDM or RequestDM) - Name indicates relationship
-    // Using 'OrRequestId' to note it can belong to either
-    public string ReceiptOrRequestID { get; private set; } = receiptOrRequestId; // FK
+    // Using 'OrRequestId' to note it can belong to either [ ! ]
+    public string ReceiptOrRequestID { get; private set; } = receiptOrRequestId;
 
-    public string ProductID { get; private set; } = productId; // FK to ProductDM
+    public string ProductID { get; private set; } = productId;
 
-    public int Amount { get; private set; } = amount; // Quantity
+    public int Amount { get; private set; } = amount;
 
     public void Validate()
     {

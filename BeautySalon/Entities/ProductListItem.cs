@@ -23,4 +23,3 @@ internal class ProductListItem
     public int Amount { get; set; }
     public bool IsDeleted { get; set; } = false;
 }
-

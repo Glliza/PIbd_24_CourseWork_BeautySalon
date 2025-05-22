@@ -18,7 +18,7 @@ internal class Request
     public required OrderStatus Status { get; set; }
     public decimal TotalPrice { get; set; }
     public bool IsDeleted { get; set; } = false;
-    public virtual ICollection<ProductListItem> ProductItems { get; set; } = new List<ProductListItem>();
-    public virtual ICollection<ServiceListItem> ServiceItems { get; set; } = new List<ServiceListItem>();
+    public virtual ICollection<ProductListItem> Products { get; set; } = new List<ProductListItem>();
+    public virtual ICollection<ServiceListItem> Services { get; set; } = new List<ServiceListItem>();
     public virtual ICollection<Visit>? Visits { get; set; } = new List<Visit>();
 }

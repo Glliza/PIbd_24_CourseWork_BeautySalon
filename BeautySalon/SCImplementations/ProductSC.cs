@@ -19,8 +19,6 @@ internal class ProductSC : IProductSC
         var config = new MapperConfiguration(cfg =>
         {
             cfg.CreateMap<Product, ProductDM>();
-
-            // Ignore properties not present in DM (like IsDeleted) or handled separately
             cfg.CreateMap<ProductDM, Product>()
                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
             // IsDeleted is managed by SC logic, not mapped directly
@@ -112,7 +110,7 @@ internal class ProductSC : IProductSC
             }
 
 
-            // Check if an active product with the same name already exists (based on unique index config)
+            // Check if an active product with the same name already exists (based on unique index config):
             var existingProductByName = await _dbContext.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Name == productDataModel.Name && !x.IsDeleted);
             if (existingProductByName != null)
             {
@@ -122,8 +120,7 @@ internal class ProductSC : IProductSC
             // Map DM to Entity
             var productEntity = _mapper.Map<Product>(productDataModel);
             productEntity.IsDeleted = false;
-            // Explicitly set IsDeleted flag to false when adding
-
+            // Explicitly set IsDeleted flag to false when adding [ * ]
             // Add the entity to the DbContext change tracker
             await _dbContext.Products.AddAsync(productEntity);
 
@@ -132,11 +129,8 @@ internal class ProductSC : IProductSC
         catch (DbUpdateException ex)
         {
             _dbContext.ChangeTracker.Clear();
-            // Check inner exception for specific database errors (e.g., unique index violation)
-            // For PostgreSQL Npgsql, unique constraint violation often has SqlState '23505'
             if (ex.InnerException != null && (ex.InnerException.Message.Contains("unique constraint") || (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")))
             {
-                // Attempt to provide more detail based on the constraint name if available
                 string constraintName = (ex.InnerException as Npgsql.PostgresException)?.ConstraintName ?? "Unknown Unique Constraint";
                 throw new ElementExistsException("ProductEntityID", productDataModel.ID);
             }
@@ -168,7 +162,7 @@ internal class ProductSC : IProductSC
             var element = await GetProductByID(productDataModel.ID);
             if (element == null)
             {
-                // If GetProductByID (which filters !IsDeleted) returns null, the element is not found or is deleted
+                // If GetProductByID (which filters !IsDeleted) returns null, the element is not found or is deleted:
                 throw new ElementNotFoundException(productDataModel.ID);
             }
 
@@ -348,7 +342,7 @@ internal class ProductSC : IProductSC
     }
 
 
-    // Helper method to get an active product entity by ID
+    // Get an active product entity by ID:
     private Task<Product?> GetProductByID(string id)
     {
         return _dbContext.Products
