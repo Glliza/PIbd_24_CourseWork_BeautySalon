@@ -1,8 +1,8 @@
 ﻿using BeautySalon.DataModels;
 
-namespace BeautySalon.BusinessLogic;
+namespace BeautySalon.BusinessLogicContracts;
 
-public interface IServiceBusinessLogicContract
+public interface IServiceBLC
 {
     List<ServiceDM> GetAllServices(bool onlyActive = true);
     List<ServiceDM> GetFilteredServices(

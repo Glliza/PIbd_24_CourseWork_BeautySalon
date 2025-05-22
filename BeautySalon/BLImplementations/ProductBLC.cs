@@ -1,15 +1,15 @@
-﻿using System.Text.Json;
-using BeautySalon.BusinessLogic;
-using BeautySalon.DataModels;
-using BeautySalon.Enums;
-using BeautySalon.Exceptions;
+﻿using BeautySalon.BusinessLogicContracts;
 using BeautySalon.StorageContracts;
 using Microsoft.Extensions.Logging;
+using BeautySalon.Exceptions;
+using BeautySalon.DataModels;
+using BeautySalon.Enums;
+using System.Text.Json;
 
 namespace BeautySalon.BLImplementations;
 
-internal class ProductBusinessLogicContract(IProductSC productStorageContract, ILogger logger)
-    : IProductBusinessLogicContract
+internal class ProductBLC(IProductSC productStorageContract, ILogger logger)
+    : IProductBLC
 {
     private readonly ILogger _logger = logger;
     private readonly IProductSC _productStorageContract = productStorageContract;

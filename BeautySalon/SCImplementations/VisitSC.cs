@@ -273,16 +273,4 @@ internal class VisitSC : IVisitSC
                          .Include(v => v.Services)
                          .FirstOrDefaultAsync(x => x.ID == id && !x.IsDeleted);
     }
-
-    // Helper method to get any visit entity (including deleted) [ * ] for Task RestoreElement(string id); (unused)
-    private Task<Visit?> GetAnyVisitByID(string id)
-    {
-        return _dbContext.Visits
-                        .Include(v => v.Customer)
-                        .Include(v => v.Staff)
-                        // Include headers and items if needed for business logic or soft delete cascading
-                        // .Include(v => v.ServiceListHeader).ThenInclude(h => h.Items)
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(x => x.ID == id);
-    }
 }

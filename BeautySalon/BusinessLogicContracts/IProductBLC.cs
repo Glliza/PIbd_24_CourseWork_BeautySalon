@@ -1,9 +1,9 @@
 ﻿using BeautySalon.DataModels;
 using BeautySalon.Enums;
 
-namespace BeautySalon.BusinessLogic;
+namespace BeautySalon.BusinessLogicContracts;
 
-public interface IProductBusinessLogicContract
+internal interface IProductBLC
 {
     List<ProductDM> GetAllProducts(bool onlyActive = true);
     List<ProductDM> GetFilteredProducts(
