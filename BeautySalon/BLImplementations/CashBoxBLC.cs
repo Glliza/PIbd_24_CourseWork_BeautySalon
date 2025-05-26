@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace BeautySalon.BLImplementations;
 
-internal class CashBoxBLC : ICashBoxBLC
+public class CashBoxBLC : ICashBoxBLC
 {
     private readonly ICashBoxSC _cashBoxStorageContract;
     private readonly ILogger _logger;

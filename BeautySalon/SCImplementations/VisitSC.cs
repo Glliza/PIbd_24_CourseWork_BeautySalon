@@ -7,7 +7,7 @@ using AutoMapper;
 
 namespace BeautySalon.SCImplementations;
 
-internal class VisitSC : IVisitSC
+public class VisitSC : IVisitSC
 {
     private readonly SalonDbContext _dbContext;
     private readonly Mapper _mapper;

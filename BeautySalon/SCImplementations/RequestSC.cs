@@ -8,7 +8,7 @@ using AutoMapper;
 
 namespace BeautySalon.SCImplementations;
 
-internal class RequestSC : IRequestSC
+public class RequestSC : IRequestSC
 {
     private readonly SalonDbContext _dbContext;
     private readonly Mapper _mapper;

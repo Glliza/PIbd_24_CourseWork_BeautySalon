@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace BeautySalon.BLImplementations;
 
-internal class RequestBLC : IRequestBLC
+public class RequestBLC : IRequestBLC
 {
     private readonly IRequestSC _requestStorageContract;
     private readonly ILogger _logger;

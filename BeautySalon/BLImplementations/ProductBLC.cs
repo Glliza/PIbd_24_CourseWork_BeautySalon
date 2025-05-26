@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace BeautySalon.BLImplementations;
 
-internal class ProductBLC(IProductSC productStorageContract, ILogger logger)
+public class ProductBLC(IProductSC productStorageContract, ILogger logger)
     : IProductBLC
 {
     private readonly ILogger _logger = logger;

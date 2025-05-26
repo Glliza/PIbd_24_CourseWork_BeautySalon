@@ -7,7 +7,7 @@ using AutoMapper;
 
 namespace BeautySalon.SCImplementations;
 
-internal class ReceiptSC : IReceiptSC
+public class ReceiptSC : IReceiptSC
 {
     private readonly SalonDbContext _dbContext;
     private readonly Mapper _mapper;

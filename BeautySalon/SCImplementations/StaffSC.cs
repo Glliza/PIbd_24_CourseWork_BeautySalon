@@ -6,10 +6,9 @@ using BeautySalon.Entities;
 using BeautySalon.Enums;
 using AutoMapper;
 
-
 namespace BeautySalon.SCImplementations;
 
-internal class StaffSC : IStaffSC
+public class StaffSC : IStaffSC
 {
     private readonly SalonDbContext _dbContext;
     private readonly Mapper _mapper;
@@ -273,7 +272,6 @@ internal class StaffSC : IStaffSC
             // Attach the entity if AsNoTracking was used, and mark as modified
             _dbContext.Workers.Attach(element);
             _dbContext.Entry(element).State = EntityState.Modified;
-
 
             // Save changes
             await _dbContext.SaveChangesAsync();

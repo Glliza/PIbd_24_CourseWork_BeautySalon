@@ -8,7 +8,7 @@ using AutoMapper;
 
 namespace BeautySalon.SCImplementations;
 
-internal class ProductSC : IProductSC
+public class ProductSC : IProductSC
 {
     private readonly SalonDbContext _dbContext;
     private readonly Mapper _mapper;

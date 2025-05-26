@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace BeautySalon.BLImplementations;
 
-internal class ReceiptBLC : IReceiptBLC
+public class ReceiptBLC : IReceiptBLC
 {
     private readonly IReceiptSC _receiptStorageContract;
     private readonly ILogger _logger;

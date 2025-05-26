@@ -7,7 +7,7 @@ using AutoMapper;
 
 namespace BeautySalon.SCImplementations;
 
-internal class CashBoxSC : ICashBoxSC
+public class CashBoxSC : ICashBoxSC
 {
     private readonly SalonDbContext _dbContext;
     private readonly Mapper _mapper;

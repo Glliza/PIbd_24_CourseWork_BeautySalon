@@ -7,7 +7,7 @@ using AutoMapper;
 
 namespace BeautySalon.SCImplementations;
 
-internal class ShiftSC : IShiftSC
+public class ShiftSC : IShiftSC
 {
     private readonly SalonDbContext _dbContext;
     private readonly Mapper _mapper;

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f9;
+        }
+
+        .header {
+            width: 100%;
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .profile-info {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            margin-top: 2rem;
+        }
+
+        .info-column,
+        .button-column {
+            width: 45%;
+        }
+
+        .info-column {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .store-button {
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .scrollable-section {
+            width: 80%;
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .shift-list,
+        .card-container {
+            width: 45%;
+        }
+
+        .shift-list {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .card-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .receipt-card,
+        .visit-card {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .card-header {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Staff Profile</h1>
+    </div>
+
+    <div class="profile-info">
+        <div class="info-column">
+            <p><strong>FIO:</strong> [Staff Full Name]</p>
+            <p><strong>Birth Date:</strong> [Date]</p>
+            <p><strong>Post Type:</strong> [Type]</p>
+        </div>
+        <div class="button-column">
+            <button class="store-button">Store</button>
+        </div>
+    </div>
+
+    <div class="scrollable-section">
+        <div class="shift-list">
+            <h2>Shifts</h2>
+            <!-- Shifts will be listed here -->
+        </div>
+        <div class="card-container">
+            <div class="receipt-card">
+                <div class="card-header">Receipt</div>
+                <!-- Receipt content goes here -->
+                <div class="card-actions">
+                    <button>Create</button>
+                    <button>Delete</button>
+                </div>
+            </div>
+            <div class="visit-card">
+                <div class="card-header">Visits</div>
+                <!-- Visit content goes here -->
+                <div class="card-actions">
+                    <button>Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

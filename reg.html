@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty Salon - Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .registration-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        .registration-container h2 {
+            margin-bottom: 1rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .action-buttons button {
+            width: 48%;
+            padding: 0.7rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .register-button {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .back-button {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="registration-container">
+        <h2>Register as Customer and Worker</h2>
+        <input type="text" class="input-field" id="customer-fio" placeholder="Customer FIO">
+        <input type="email" class="input-field" id="customer-email" placeholder="Customer Email">
+        <input type="password" class="input-field" id="customer-password" placeholder="Customer Password">
+
+        <hr>
+
+        <input type="text" class="input-field" id="worker-fio" placeholder="Worker FIO">
+        <input type="email" class="input-field" id="worker-email" placeholder="Worker Email">
+        <input type="password" class="input-field" id="worker-password" placeholder="Worker Password">
+
+        <div class="action-buttons">
+            <button class="register-button" onclick="register()">Register</button>
+            <button class="back-button" onclick="goBack()">Back</button>
+        </div>
+    </div>
+
+    <script>
+        async function register() {
+            const customerFio = document.getElementById('customer-fio').value;
+            const customerEmail = document.getElementById('customer-email').value;
+            const customerPassword = document.getElementById('customer-password').value;
+
+            const workerFio = document.getElementById('worker-fio').value;
+            const workerEmail = document.getElementById('worker-email').value;
+            const workerPassword = document.getElementById('worker-password').value;
+
+            try {
+                // Register customer
+                const customerResponse = await fetch('/api/customer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fio: customerFio,
+                        email: customerEmail,
+                        password: customerPassword
+                    })
+                });
+
+                if (!customerResponse.ok) {
+                    throw new Error('Failed to register customer');
+                }
+
+                // Register worker
+                const workerResponse = await fetch('/api/staff', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fio: workerFio,
+                        email: workerEmail,
+                        password: workerPassword
+                    })
+                });
+
+                if (!workerResponse.ok) {
+                    throw new Error('Failed to register worker');
+                }
+
+                alert('Registration successful!');
+                window.location.href = 'index.html';
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>

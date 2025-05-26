@@ -6,8 +6,7 @@ using BeautySalon.DataModels;
 using System.Text.Json;
 
 namespace BeautySalon.BLImplementations;
-
-internal class CustomerBLC : ICustomerBLC
+public class CustomerBLC : ICustomerBLC
 {
     private readonly ICustomerSC _customerStorageContract;
     private readonly ILogger _logger;

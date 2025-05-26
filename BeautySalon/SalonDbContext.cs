@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using BeautySalon.Entities;
 
-internal class SalonDbContext : DbContext
+public class SalonDbContext : DbContext
 {
     public DbSet<Staff> Workers { get; set; } = null!;
     public DbSet<Customer> Customers { get; set; } = null!;

@@ -3,7 +3,7 @@ using BeautySalon.Enums;
 
 namespace BeautySalon.BusinessLogicContracts;
 
-internal interface IProductBLC
+public interface IProductBLC
 {
     List<ProductDM> GetAllProducts(bool onlyActive = true);
     List<ProductDM> GetFilteredProducts(

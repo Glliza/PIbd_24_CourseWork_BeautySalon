@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace BeautySalon.BLImplementations;
 
-internal class ServiceBLC : IServiceBLC
+public class ServiceBLC : IServiceBLC
 {
     private readonly IServiceSC _serviceStorageContract;
     private readonly ILogger _logger;
@@ -34,7 +34,17 @@ internal class ServiceBLC : IServiceBLC
 
     public ServiceDM GetServiceById(string id)
     {
-        _logger.LogInformation("GetServiceById for" { id}\", id);\n        if (string.IsNullOrEmpty(id))\n        {\n            throw new ArgumentNullException(nameof(id));\n        }\n        if (!id.IsGuid())\n        {\n            throw new ValidationException(\"Service ID is not a valid GUID\");\n        }\n\n        "var result = _serviceStorageContract.GetElementByID(id).GetAwaiter().GetResult();
+        _logger.LogInformation("GetServiceByIdDuplicated for {id}", id);
+        if (string.IsNullOrEmpty(id))
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+        if (!id.IsGuid())
+        {
+            throw new ValidationException("Service ID is not a valid GUID");
+        }
+
+        var result = _serviceStorageContract.GetElementByID(id).GetAwaiter().GetResult();
         return result ?? throw new ElementNotFoundException(id);
     }
 

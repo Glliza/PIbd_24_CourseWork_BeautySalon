@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace BeautySalon.BLImplementations;
 
-internal class ShiftBLC : IShiftBLC
+public class ShiftBLC : IShiftBLC
 {
     private readonly IShiftSC _shiftStorageContract;
     private readonly ILogger _logger;

@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace BeautySalon.BLImplementations;
 
-internal class VisitBLC : IVisitBLC
+public class VisitBLC : IVisitBLC
 {
     private readonly IVisitSC _visitStorageContract;
     private readonly ILogger _logger;

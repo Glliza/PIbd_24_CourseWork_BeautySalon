@@ -6,11 +6,13 @@ namespace BeautySalon.Infrastructure;
 
 public class OperationResponseBase
 {
-    protected HttpStatusCode StatusCode { get; set; }
+    public HttpStatusCode StatusCode { get; set; }
 
-    protected object? Result { get; set; }
+    public object? Result { get; set; }
 
     protected string? FileName { get; set; }
+
+    public string? Message { get; set; }
 
     public IActionResult GetResponse(HttpRequest request, HttpResponse response)
     {
@@ -38,11 +40,11 @@ public class OperationResponseBase
 
     protected static TResult OK<TResult, TData>(TData data, string fileName) where TResult : OperationResponseBase, new() => new() { StatusCode = HttpStatusCode.OK, Result = data, FileName = fileName };
 
-    protected static TResult NoContent<TResult>() where TResult : OperationResponseBase, new() => new() { StatusCode = HttpStatusCode.NoContent };
+    public static TResult NoContent<TResult>() where TResult : OperationResponseBase, new() => new() { StatusCode = HttpStatusCode.NoContent };
 
-    protected static TResult BadRequest<TResult>(string? errorMessage = null) where TResult : OperationResponseBase, new() => new() { StatusCode = HttpStatusCode.BadRequest, Result = errorMessage };
+    public static TResult BadRequest<TResult>(string? errorMessage = null) where TResult : OperationResponseBase, new() => new() { StatusCode = HttpStatusCode.BadRequest, Result = errorMessage, Message = errorMessage };
 
-    protected static TResult NotFound<TResult>(string? errorMessage = null) where TResult : OperationResponseBase, new() => new() { StatusCode = HttpStatusCode.NotFound, Result = errorMessage };
+    public static TResult NotFound<TResult>(string? errorMessage = null) where TResult : OperationResponseBase, new() => new() { StatusCode = HttpStatusCode.NotFound, Result = errorMessage, Message = errorMessage };
 
-    protected static TResult InternalServerError<TResult>(string? errorMessage = null) where TResult : OperationResponseBase, new() => new() { StatusCode = HttpStatusCode.InternalServerError, Result = errorMessage };
+    public static TResult InternalServerError<TResult>(string? errorMessage = null) where TResult : OperationResponseBase, new() => new() { StatusCode = HttpStatusCode.InternalServerError, Result = errorMessage, Message = errorMessage };
 }
