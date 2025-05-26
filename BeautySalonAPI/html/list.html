@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty Salon - Service List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .list-container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .service-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .service-info {
+            flex-grow: 1;
+        }
+
+        .service-name {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .service-description {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .service-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Service List</h1>
+    <div class="list-container">
+        <!-- Service cards will be dynamically generated here -->
+        <div class="service-card">
+            <div class="service-info">
+                <div class="service-name">Service 1</div>
+                <div class="service-description">Description of service 1</div>
+            </div>
+            <div class="service-actions">
+                <button>View Details</button>
+                <button>Book Now</button>
+            </div>
+        </div>
+        <div class="service-card">
+            <div class="service-info">
+                <div class="service-name">Service 2</div>
+                <div class="service-description">Description of service 2</div>
+            </div>
+            <div class="service-actions">
+                <button>View Details</button>
+                <button>Book Now</button>
+            </div>
+        </div>
+        <!-- Add more services as needed -->
+    </div>
+
+    <script>
+        // This script would dynamically generate service cards based on API data
+        document.addEventListener('DOMContentLoaded', () => {
+            const listContainer = document.querySelector('.list-container');
+
+            // Example services (in a real application, this would be fetched from an API)
+            const services = [
+                { name: 'Service 1', description: 'Description of service 1' },
+                { name: 'Service 2', description: 'Description of service 2' }
+                // Add more services as needed
+            ];
+
+            services.forEach(service => {
+                const card = document.createElement('div');
+                card.classList.add('service-card');
+
+                const info = document.createElement('div');
+                info.classList.add('service-info');
+
+                const name = document.createElement('div');
+                name.classList.add('service-name');
+                name.textContent = service.name;
+
+                const description = document.createElement('div');
+                description.classList.add('service-description');
+                description.textContent = service.description;
+
+                info.appendChild(name);
+                info.appendChild(description);
+
+                const actions = document.createElement('div');
+                actions.classList.add('service-actions');
+
+                const viewButton = document.createElement('button');
+                viewButton.textContent = 'View Details';
+
+                const bookButton = document.createElement('button');
+                bookButton.textContent = 'Book Now';
+
+                actions.appendChild(viewButton);
+                actions.appendChild(bookButton);
+
+                card.appendChild(info);
+                card.appendChild(actions);
+
+                listContainer.appendChild(card);
+            });
+        });
+    </script>
+</body>
+
+</html>

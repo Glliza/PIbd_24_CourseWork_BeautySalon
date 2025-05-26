@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty Salon - Stock</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .gallery-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .product-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: calc(33.333% - 1rem);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .product-card img {
+            max-width: 100%;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-info {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Product Stock</h1>
+    <div class="gallery-container">
+        <!-- Product cards will be dynamically generated here -->
+        <div class="product-card">
+            <img src="path/to/product1.jpg" alt="Product 1">
+            <div class="product-name">Product 1</div>
+            <div class="product-info">Description of product 1</div>
+        </div>
+        <div class="product-card">
+            <img src="path/to/product2.jpg" alt="Product 2">
+            <div class="product-name">Product 2</div>
+            <div class="product-info">Description of product 2</div>
+        </div>
+        <!-- Add more products as needed -->
+    </div>
+
+    <script>
+        // This script would dynamically generate product cards based on API data
+        document.addEventListener('DOMContentLoaded', () => {
+            const galleryContainer = document.querySelector('.gallery-container');
+
+            // Example products (in a real application, this would be fetched from an API)
+            const products = [
+                { name: 'Product 1', description: 'Description of product 1', image: 'path/to/product1.jpg' },
+                { name: 'Product 2', description: 'Description of product 2', image: 'path/to/product2.jpg' }
+                // Add more products as needed
+            ];
+
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.classList.add('product-card');
+
+                const img = document.createElement('img');
+                img.src = product.image;
+                img.alt = product.name;
+
+                const name = document.createElement('div');
+                name.classList.add('product-name');
+                name.textContent = product.name;
+
+                const info = document.createElement('div');
+                info.classList.add('product-info');
+                info.textContent = product.description;
+
+                card.appendChild(img);
+                card.appendChild(name);
+                card.appendChild(info);
+
+                galleryContainer.appendChild(card);
+            });
+        });
+    </script>
+</body>
+
+</html>

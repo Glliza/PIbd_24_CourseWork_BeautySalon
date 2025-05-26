@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beauty Salon - Login</title>
+    <title>Beauty Salon - Worker Login</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -141,7 +141,7 @@
                     const staffData = await response.json();
                     if (staffData.password === password) {
                         alert(`Worker login successful: ${username}`);
-                        window.location.href = 'home.html';
+                        window.location.href = 'worker-home.html';
                         return;
                     }
                 }
@@ -152,7 +152,7 @@
                     const customerData = await response.json();
                     if (customerData.password === password) {
                         alert(`Customer login successful: ${username}`);
-                        window.location.href = 'home.html';
+                        window.location.href = 'customer-home.html';
                         return;
                     }
                 }
@@ -177,7 +177,7 @@
         }
 
         function goToRegistration() {
-            window.location.href = 'reg.html';
+            window.location.href = 'registration.html';
         }
 
         // Populate cashboxes dynamically (this would be done via an API call in a real application)
