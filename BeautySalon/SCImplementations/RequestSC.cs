@@ -28,8 +28,8 @@ public class RequestSC : IRequestSC
             // Ensure mapping handles the nested lists and ignores properties like IsDeleted managed by SC
             cfg.CreateMap<RequestDM, Request>()
                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
-               .ForMember(dest => dest.ProductItems, opt => opt.Ignore())
-               .ForMember(dest => dest.ServiceItems, opt => opt.Ignore());
+               .ForMember(dest => dest.Products, opt => opt.Ignore())
+               .ForMember(dest => dest.Services, opt => opt.Ignore());
 
             // Map from DM list item to EF list item entity, ignore parent FKs and IsDeleted
             cfg.CreateMap<ProductListItemDM, ProductListItem>()
@@ -114,9 +114,9 @@ public class RequestSC : IRequestSC
             // Find the active request entity by ID, and INCLUDE its items
             var requestEntity = await _dbContext.Requests
                                                 .Include(r => r.Customer) // Include related Customer
-                                                .Include(r => r.ProductItems) // Include ProductListItems
+                                                .Include(r => r.Products) // Include ProductListItems
                                                     .ThenInclude(pli => pli.Product) // Optionally include the Product details for each item
-                                                .Include(r => r.ServiceItems) // Include ServiceListItems
+                                                .Include(r => r.Services) // Include ServiceListItems
                                                     .ThenInclude(sli => sli.Service) // Optionally include the Service details for each item
                                                 .AsNoTracking() // Use AsNoTracking
                                                 .FirstOrDefaultAsync(x => x.ID == id && !x.IsDeleted); // Find active
@@ -165,7 +165,7 @@ public class RequestSC : IRequestSC
             requestEntity.IsDeleted = false; // Explicitly set IsDeleted flag to false
 
             // Manually map and add list items, setting the parent FK and IsDeleted
-            requestEntity.ProductItems = requestDataModel.ProductItems
+            requestEntity.Products = requestDataModel.ProductItems
                 .Select(itemDm => {
                     var itemEntity = _mapper.Map<ProductListItem>(itemDm);
                     itemEntity.ParentRequestID = requestEntity.ID; // Set the FK back to the parent request
@@ -173,7 +173,7 @@ public class RequestSC : IRequestSC
                     return itemEntity;
                 }).ToList();
 
-            requestEntity.ServiceItems = requestDataModel.ServiceItems
+            requestEntity.Services = requestDataModel.ServiceItems
                .Select(itemDm => {
                    var itemEntity = _mapper.Map<ServiceListItem>(itemDm);
                    itemEntity.ParentRequestID = requestEntity.ID; // Set the FK back to the parent request
@@ -226,8 +226,8 @@ public class RequestSC : IRequestSC
 
             // Find the existing *active* entity by ID, including items for comparison/update
             var element = await _dbContext.Requests
-                                          .Include(r => r.ProductItems)
-                                          .Include(r => r.ServiceItems)
+                                          .Include(r => r.Products)
+                                          .Include(r => r.Services)
                                           .FirstOrDefaultAsync(x => x.ID == requestDataModel.ID && !x.IsDeleted); // Find active and *track* it
 
             if (element == null)
@@ -258,10 +258,10 @@ public class RequestSC : IRequestSC
             // Requires loading the existing items first (done above with .Include())
 
             // Handle Product Items
-            var currentProductItemIds = element.ProductItems.Select(item => item.ID).ToList();
+            var currentProductItemIds = element.Products.Select(item => item.ID).ToList();
             var newItemProductItemIds = requestDataModel.ProductItems.Where(itemDm => !currentProductItemIds.Contains(itemDm.ProductID)).Select(itemDm => itemDm.ProductID).ToList();
             var updatedProductItemIds = requestDataModel.ProductItems.Where(itemDm => currentProductItemIds.Contains(itemDm.ProductID)).Select(itemDm => itemDm.ProductID).ToList();
-            var removedProductItems = element.ProductItems.Where(itemEntity => !requestDataModel.ProductItems.Any(itemDm => itemDm.ProductID == itemEntity.ID)).ToList();
+            var removedProductItems = element.Products.Where(itemEntity => !requestDataModel.ProductItems.Any(itemDm => itemDm.ProductID == itemEntity.ID)).ToList();
 
             // Remove items that are in the DB but not in the incoming DM list
             foreach (var itemToRemove in removedProductItems)
@@ -281,13 +281,13 @@ public class RequestSC : IRequestSC
                                                             // newItemEntity.ParentReceiptID = null;
                                                             // Explicitly set other potential parent FKs to null
                 newItemEntity.IsDeleted = false; // New items are not deleted
-                element.ProductItems.Add(newItemEntity); // Add to the collection, EF tracks it
+                element.Products.Add(newItemEntity); // Add to the collection, EF tracks it
             }
 
             // Update existing items that are in both the DB and the incoming DM list
             foreach (var updatedItemDm in requestDataModel.ProductItems.Where(itemDm => updatedProductItemIds.Contains(itemDm.ProductID)))
             {
-                var existingItemEntity = element.ProductItems.FirstOrDefault(item => item.ID == updatedItemDm.ProductID);
+                var existingItemEntity = element.Products.FirstOrDefault(item => item.ID == updatedItemDm.ProductID);
                 if (existingItemEntity != null)
                 {
                     _mapper.Map(updatedItemDm, existingItemEntity); // Map changes onto existing entity
@@ -298,10 +298,10 @@ public class RequestSC : IRequestSC
 
 
             // Repeat the same logic for Service Items
-            var currentServiceItemIds = element.ServiceItems.Select(item => item.ID).ToList();
+            var currentServiceItemIds = element.Services.Select(item => item.ID).ToList();
             var newItemServiceItemIds = requestDataModel.ServiceItems.Where(itemDm => !currentServiceItemIds.Contains(itemDm.ServiceID)).Select(itemDm => itemDm.ServiceID).ToList();
             var updatedServiceItemIds = requestDataModel.ServiceItems.Where(itemDm => currentServiceItemIds.Contains(itemDm.ServiceID)).Select(itemDm => itemDm.ServiceID).ToList();
-            var removedServiceItems = element.ServiceItems.Where(itemEntity => !requestDataModel.ServiceItems.Any(itemDm => itemDm.ServiceID == itemEntity.ID)).ToList();
+            var removedServiceItems = element.Services.Where(itemEntity => !requestDataModel.ServiceItems.Any(itemDm => itemDm.ServiceID == itemEntity.ID)).ToList();
 
             // Remove items
             foreach (var itemToRemove in removedServiceItems) { _dbContext.ServiceListItems.Remove(itemToRemove); /* Or Soft Delete */ }
@@ -313,13 +313,13 @@ public class RequestSC : IRequestSC
                 newItemEntity.ParentRequestID = element.ID; // Set the FK back
                                                             // newItemEntity.ParentVisitID = null; // Explicitly set other potential parent FKs to null
                 newItemEntity.IsDeleted = false;
-                element.ServiceItems.Add(newItemEntity);
+                element.Services.Add(newItemEntity);
             }
 
             // Update existing items
             foreach (var updatedItemDm in requestDataModel.ServiceItems.Where(itemDm => updatedServiceItemIds.Contains(itemDm.ServiceID)))
             {
-                var existingItemEntity = element.ServiceItems.FirstOrDefault(item => item.ID == updatedItemDm.ServiceID);
+                var existingItemEntity = element.Services.FirstOrDefault(item => item.ID == updatedItemDm.ServiceID);
                 if (existingItemEntity != null)
                 {
                     _mapper.Map(updatedItemDm, existingItemEntity);
@@ -366,8 +366,8 @@ public class RequestSC : IRequestSC
         {
             // Find the active request entity to soft delete, including its items for cascading
             var element = await _dbContext.Requests
-                                          .Include(r => r.ProductItems)
-                                          .Include(r => r.ServiceItems)
+                                          .Include(r => r.Products)
+                                          .Include(r => r.Services)
                                           .FirstOrDefaultAsync(x => x.ID == id && !x.IsDeleted); // Find active and *track* it
 
             if (element == null)
@@ -379,11 +379,11 @@ public class RequestSC : IRequestSC
             element.IsDeleted = true;
 
             // Perform cascading soft delete on the items
-            foreach (var item in element.ProductItems)
+            foreach (var item in element.Products)
             {
                 item.IsDeleted = true;
             }
-            foreach (var item in element.ServiceItems)
+            foreach (var item in element.Services)
             {
                 item.IsDeleted = true;
             }
@@ -414,8 +414,8 @@ public class RequestSC : IRequestSC
             // Find the soft-deleted request entity to restore, including its items
             // Note: Need to find *including* deleted ones here and check if it *is* deleted
             var element = await _dbContext.Requests
-                                          .Include(r => r.ProductItems)
-                                          .Include(r => r.ServiceItems)
+                                          .Include(r => r.Products)
+                                          .Include(r => r.Services)
                                           .FirstOrDefaultAsync(x => x.ID == id && x.IsDeleted); // Find deleted and *track* it
 
             if (element == null || !element.IsDeleted) // Check if found AND is currently deleted
@@ -430,12 +430,12 @@ public class RequestSC : IRequestSC
             element.IsDeleted = false;
 
             // Restore cascading soft-deleted items (only those that were deleted with this request)
-            foreach (var item in element.ProductItems.Where(item => item.IsDeleted))
+            foreach (var item in element.Products.Where(item => item.IsDeleted))
             {
                 // Add more granular check if items can be deleted independently of the parent
                 item.IsDeleted = false;
             }
-            foreach (var item in element.ServiceItems.Where(item => item.IsDeleted))
+            foreach (var item in element.Services.Where(item => item.IsDeleted))
             {
                 // Add more granular check if items can be deleted independently of the parent
                 item.IsDeleted = false;

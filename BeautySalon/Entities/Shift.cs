@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace BeautySalon.Entities;
 
 [Table("Shifts")]
-internal class Shift
+public class Shift
 {
     [Key]
     public required string ID { get; set; }
