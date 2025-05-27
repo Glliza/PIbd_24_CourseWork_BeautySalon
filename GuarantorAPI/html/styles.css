@@ -198,3 +198,113 @@ body.login-page {
     color: white;
     z-index: 1000;
 }
+/* ==== Профиль сотрудника ==== */
+
+.profile-main {
+    padding: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.profile-info {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.info-column {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    flex: 1 1 40%;
+    min-width: 300px;
+}
+
+.button-column {
+    flex: 1 1 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    min-width: 250px;
+}
+
+.store-button,
+.report-button {
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: none;
+    color: white;
+    background-color: #c1b594;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.store-button:hover,
+.report-button:hover {
+    background-color: #a19572;
+}
+
+.scrollable-section {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.shift-list {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    flex: 1 1 40%;
+    min-width: 300px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.card-container {
+    flex: 1 1 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.receipt-card,
+.visit-card {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    width: 100%;
+}
+
+.card-header {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.card-actions button {
+    background-color: #c1b594;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.card-actions button:hover {
+    background-color: #a19572;
+}
