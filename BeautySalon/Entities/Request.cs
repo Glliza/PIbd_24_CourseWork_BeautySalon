@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 namespace BeautySalon.Entities;
 
 [Table("Requests")]
-internal class Request
+public class Request
 {
     [Key]
     public required string ID { get; set; }

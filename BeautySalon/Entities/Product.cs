@@ -6,7 +6,7 @@ using BeautySalon.DataModels;
 namespace BeautySalon.Entities;
 
 [Table("Products")]
-internal class Product
+public class Product
 {
     [Key]
     public required string ID { get; set; }

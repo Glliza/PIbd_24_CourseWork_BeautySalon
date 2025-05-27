@@ -5,7 +5,7 @@ using BeautySalon.Enums;
 namespace BeautySalon.Entities;
 
 [Table("Workers")]
-internal class Staff
+public class Staff
 {
     [Key]
     public required string ID { get; set; }
