@@ -1,6 +1,6 @@
 ﻿using BeautySalon.Infrastructure;
-using BeautySalon.Extensions;
-using BeautySalon.Exceptions;
+using BeautySalon.Extensions; // Correct namespace for extension methods
+using BeautySalon.Exceptions; // Import ValidationException
 
 namespace BeautySalon.DataModels;
 

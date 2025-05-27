@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Stock - Beauty Salon</title>
+    <title>Service List - Beauty Salon</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -64,47 +64,47 @@
 
 <body>
     <div class="entity-list">
-        <h2>Products</h2>
-        <div id="product-list"></div>
+        <h2>Services</h2>
+        <div id="service-list"></div>
 
         <div class="action-buttons">
-            <button class="add-button" onclick="addProduct()">Add Product</button>
+            <button class="add-button" onclick="addService()">Add Service</button>
             <button class="back-button" onclick="goBack()">Back</button>
         </div>
     </div>
 
     <script>
-        async function loadProducts() {
+        async function loadServices() {
             try {
-                const response = await fetch('/api/product');
+                const response = await fetch('/api/service');
                 if (!response.ok) {
-                    throw new Error('Failed to load products');
+                    throw new Error('Failed to load services');
                 }
 
-                const products = await response.json();
-                const productList = document.getElementById('product-list');
+                const services = await response.json();
+                const serviceList = document.getElementById('service-list');
 
-                products.forEach(product => {
+                services.forEach(service => {
                     const div = document.createElement('div');
                     div.className = 'entity-item';
-                    div.textContent = `${product.name} - ${product.quantity} in stock`;
-                    productList.appendChild(div);
+                    div.textContent = `${service.name} - $${service.price}`;
+                    serviceList.appendChild(div);
                 });
             } catch (error) {
                 alert(`Error: ${error.message}`);
             }
         }
 
-        function addProduct() {
-            window.location.href = 'add-product.html';
+        function addService() {
+            window.location.href = 'add-service.html';
         }
 
         function goBack() {
             window.location.href = 'index.html';
         }
 
-        // Load products when the page loads
-        window.onload = loadProducts;
+        // Load services when the page loads
+        window.onload = loadServices;
     </script>
 </body>
 

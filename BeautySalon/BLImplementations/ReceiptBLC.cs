@@ -2,6 +2,7 @@
 using BeautySalon.StorageContracts;
 using Microsoft.Extensions.Logging;
 using BeautySalon.Exceptions;
+using BeautySalon.Extensions;
 using BeautySalon.DataModels;
 using System.Text.Json;
 

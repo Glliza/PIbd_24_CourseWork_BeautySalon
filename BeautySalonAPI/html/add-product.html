@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - Beauty Salon</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .entity-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        .entity-container h2 {
+            margin-bottom: 1rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .action-buttons button {
+            width: 48%;
+            padding: 0.7rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .save-button {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .cancel-button {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="entity-container">
+        <h2>Add Product</h2>
+        <input type="text" class="input-field" id="name" placeholder="Product Name">
+        <input type="text" class="input-field" id="description" placeholder="Description">
+        <input type="number" class="input-field" id="quantity" placeholder="Quantity">
+
+        <div class="action-buttons">
+            <button class="save-button" onclick="saveProduct()">Save</button>
+            <button class="cancel-button" onclick="goBack()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        async function saveProduct() {
+            const name = document.getElementById('name').value;
+            const description = document.getElementById('description').value;
+            const quantity = document.getElementById('quantity').value;
+
+            try {
+                const response = await fetch('/api/product', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        description: description,
+                        quantity: quantity
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to add product');
+                }
+
+                alert('Product added successfully!');
+                window.location.href = 'stock.html';
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'stock.html';
+        }
+    </script>
+</body>
+
+</html>

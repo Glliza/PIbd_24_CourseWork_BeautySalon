@@ -49,7 +49,8 @@
             align-items: center;
         }
 
-        .store-button {
+        .store-button,
+        .report-button {
             background-color: #007bff;
             color: white;
             padding: 0.5rem 1rem;
@@ -131,6 +132,9 @@
         </div>
         <div class="button-column">
             <button class="store-button">Store</button>
+            <button class="report-button" onclick="generateProductReport()">Generate Product Report</button>
+            <button class="report-button" onclick="generateServiceReport()">Generate Service Report</button>
+            <button class="report-button" onclick="generateVisitReport()">Generate Visit Report</button>
         </div>
     </div>
 
@@ -157,6 +161,74 @@
             </div>
         </div>
     </div>
+
+    <script>
+        async function generateProductReport() {
+            try {
+                const response = await fetch('/api/report/generate-product-report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify([]) // Replace with actual product data if needed
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate report');
+                }
+
+                const result = await response.json();
+                alert(`Product Report Generated: ${result.filePath}`);
+            } catch (error) {
+                console.error('Error generating product report:', error);
+                alert('Failed to generate product report');
+            }
+        }
+
+        async function generateServiceReport() {
+            try {
+                const response = await fetch('/api/report/generate-service-report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify([]) // Replace with actual service data if needed
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate report');
+                }
+
+                const result = await response.json();
+                alert(`Service Report Generated: ${result.filePath}`);
+            } catch (error) {
+                console.error('Error generating service report:', error);
+                alert('Failed to generate service report');
+            }
+        }
+
+        async function generateVisitReport() {
+            try {
+                const response = await fetch('/api/report/generate-visit-report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify([]) // Replace with actual visit data if needed
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate report');
+                }
+
+                const result = await response.json();
+                alert(`Visit Report Generated: ${result.filePath}`);
+            } catch (error) {
+                console.error('Error generating visit report:', error);
+                alert('Failed to generate visit report');
+            }
+        }
+    </script>
 
 </body>
 

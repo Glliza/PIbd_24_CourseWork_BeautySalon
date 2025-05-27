@@ -65,16 +65,26 @@
 
 <body>
     <div class="registration-container">
-        <h2>Register as Customer and Worker</h2>
-        <input type="text" class="input-field" id="customer-fio" placeholder="Customer FIO">
-        <input type="email" class="input-field" id="customer-email" placeholder="Customer Email">
-        <input type="password" class="input-field" id="customer-password" placeholder="Customer Password">
+        <h2>Register</h2>
+        <input type="text" class="input-field" id="name" placeholder="Name">
+        <input type="email" class="input-field" id="email" placeholder="Email">
+        <input type="password" class="input-field" id="password" placeholder="Password">
 
-        <hr>
+        <div>
+            <label>
+                <input type="radio" name="user-type" value="worker" onclick="showWorkerFields()">
+                Worker (Guarantor)
+            </label>
+        </div>
+        <div>
+            <label>
+                <input type="radio" name="user-type" value="customer" onclick="showCustomerFields()">
+                Customer (Executor)
+            </label>
+        </div>
 
-        <input type="text" class="input-field" id="worker-fio" placeholder="Worker FIO">
-        <input type="email" class="input-field" id="worker-email" placeholder="Worker Email">
-        <input type="password" class="input-field" id="worker-password" placeholder="Worker Password">
+        <input type="date" class="input-field" id="birthdate" placeholder="Birth Date" style="display:none;">
+        <input type="number" class="input-field" id="number" placeholder="Number" style="display:none;">
 
         <div class="action-buttons">
             <button class="register-button" onclick="register()">Register</button>
@@ -83,52 +93,49 @@
     </div>
 
     <script>
-        async function register() {
-            const customerFio = document.getElementById('customer-fio').value;
-            const customerEmail = document.getElementById('customer-email').value;
-            const customerPassword = document.getElementById('customer-password').value;
+        function showWorkerFields() {
+            document.getElementById('birthdate').style.display = 'block';
+            document.getElementById('number').style.display = 'none';
+        }
 
-            const workerFio = document.getElementById('worker-fio').value;
-            const workerEmail = document.getElementById('worker-email').value;
-            const workerPassword = document.getElementById('worker-password').value;
+        function showCustomerFields() {
+            document.getElementById('birthdate').style.display = 'none';
+            document.getElementById('number').style.display = 'block';
+        }
+
+        async function register() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const userType = document.querySelector('input[name="user-type"]:checked').value;
+
+            let additionalField = '';
+            if (userType === 'worker') {
+                additionalField = document.getElementById('birthdate').value;
+            } else {
+                additionalField = document.getElementById('number').value;
+            }
 
             try {
-                // Register customer
-                const customerResponse = await fetch('/api/customer', {
+                const response = await fetch(`/api/${userType}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        fio: customerFio,
-                        email: customerEmail,
-                        password: customerPassword
+                        fio: name,
+                        email: email,
+                        password: password,
+                        additionalField: additionalField
                     })
                 });
 
-                if (!customerResponse.ok) {
-                    throw new Error('Failed to register customer');
-                }
-
-                // Register worker
-                const workerResponse = await fetch('/api/staff', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        fio: workerFio,
-                        email: workerEmail,
-                        password: workerPassword
-                    })
-                });
-
-                if (!workerResponse.ok) {
-                    throw new Error('Failed to register worker');
+                if (!response.ok) {
+                    throw new Error(`Failed to register ${userType}`);
                 }
 
                 alert('Registration successful!');
-                window.location.href = 'index.html';
+                window.location.href = `${userType}-home.html`;
             } catch (error) {
                 alert(`Error: ${error.message}`);
             }

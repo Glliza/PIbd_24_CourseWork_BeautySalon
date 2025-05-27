@@ -2,10 +2,12 @@
 using BeautySalon.StorageContracts;
 using Microsoft.Extensions.Logging;
 using BeautySalon.Exceptions;
+using BeautySalon.Extensions;
 using BeautySalon.DataModels;
 using BeautySalon.Entities;
 using BeautySalon.Enums;
 using System.Text.Json;
+using AutoMapper;
 
 using BeautySalon.MailWork;
 using BeautySalon.Contracts.BindingModels;
@@ -18,21 +20,26 @@ public class StaffBLC : IStaffBLC
     private readonly MailKit _mailWorker; // Add this
     private readonly ILogger<StaffBLC> _logger;
     private readonly ReportGenerator _reportGenerator;
+    private readonly IMapper _mapper;
 
-    public StaffBLC(IStaffSC staffStorage, MailKit mailWorker, ILogger<StaffBLC> logger, ReportGenerator reportGenerator)
+    public StaffBLC(IStaffSC staffStorage, MailKit mailWorker, ILogger<StaffBLC> logger, ReportGenerator reportGenerator, IMapper mapper)
     {
         _staffStorage = staffStorage;
         _mailWorker = mailWorker; // Add this
         _logger = logger;
         _reportGenerator = reportGenerator;
+        _mapper = mapper;
     }
 
     public async Task<List<Staff>> GetAllStaffAsync()
     {
         try
         {
-            var staffList = _staffStorage.GetList();
+            var staffDMList = await _staffStorage.GetList();
             _logger.LogInformation("Successfully retrieved all staff.");
+
+            // Map to List<Staff>
+            var staffList = _mapper.Map<List<Staff>>(staffDMList);
 
             // Generate and send report
             var reportFilePath = await _reportGenerator.GenerateStaffReport(staffList);
