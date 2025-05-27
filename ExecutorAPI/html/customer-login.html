@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" type="image/svg+xml" href="/BeautySalonAPI/img/cry.svg" />
-    <title>Beauty Salon - Registration</title>
+    <title>Beauty Salon - Вход для клиентов</title>
 </head>
 
 <body>
-    <!-- Header -->
+    <!-- Header (как на других страницах) -->
     <header class="header">
         <div class="container">
             <div class="logo-container">
@@ -33,8 +34,8 @@
         </div>
     </header>
 
-    <!-- Registration Section -->
-    <section class="registration-section">
+    <!-- Login Section -->
+    <section class="login-section customer-login">
         <div class="split-screen">
             <!-- Left Side: Image -->
             <div class="image-container d-none d-md-flex">
@@ -43,36 +44,30 @@
 
             <!-- Right Side: Form -->
             <div class="form-container p-5">
-                <h2 class="form-title mb-4 text-center">Регистрация</h2>
-                <form id="registration-form">
+                <h2 class="form-title mb-4 text-center">Вход для клиентов</h2>
+                <form id="customer-login-form">
                     <div class="input-group mb-3">
                         <span class="input-icon"><i class="fas fa-user"></i></span>
-                        <input type="text" id="fio" class="form-control form-input" placeholder="ФИО" required>
-                    </div>
-                    <div class="input-group mb-3">
-                        <span class="input-icon"><i class="fas fa-calendar-alt"></i></span>
-                        <input type="date" id="date-of-birth" class="form-control form-input" placeholder="Дата рождения" required>
-                    </div>
-                    <div class="input-group mb-3">
-                        <span class="input-icon"><i class="fas fa-phone"></i></span>
-                        <input type="tel" id="phone" class="form-control form-input" placeholder="+7XXXXXXXXXX" required>
-                    </div>
-                    <div class="input-group mb-3">
-                        <span class="input-icon"><i class="fas fa-envelope"></i></span>
-                        <input type="email" id="email" class="form-control form-input" placeholder="Email" required>
+                        <input type="text" id="username" class="form-control form-input" placeholder="Логин" required>
                     </div>
                     <div class="input-group mb-4">
                         <span class="input-icon"><i class="fas fa-lock"></i></span>
                         <input type="password" id="password" class="form-control form-input" placeholder="Пароль" required>
                     </div>
-                    <button type="submit" class="register-button btn btn-success w-100">Зарегистрироваться</button>
-                    <p class="already-registered mt-3 text-center"> Уже есть аккаунт? <a href="/GuarantorAPI/html/worker-login.html" class="login-link">Войти</a>
+
+                    <button type="submit" class="btn btn-primary w-100 enter-button">
+                        Войти
+                    </button>
+
+                    <p class="already-registered mt-3 text-center">
+                        Нет аккаунта? <a href="/BeautySalonAPI/html/registration.html" class="login-link">Зарегистрироваться</a>
                     </p>
                 </form>
             </div>
         </div>
     </section>
 
+    <!-- Footer (как на других страницах) -->
     <footer class="footer">
         <div class="container">
             <div class="footer-columns">
@@ -94,49 +89,41 @@
             <div class="footer-bottom">
                 <p>&copy; 2023 Вы ужасны. Все права защищены.</p>
             </div>
-             </div>
+        </div>
     </footer>
 
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css ">
-
     <script>
-        document.getElementById('registration-form').addEventListener('submit', async (event) => {
+        document.getElementById('customer-login-form').addEventListener('submit', async (event) => {
             event.preventDefault();
+            await login();
+        });
 
-            const fio = document.getElementById('fio').value;
-            const dateOfBirth = document.getElementById('date-of-birth').value;
-            const phone = document.getElementById('phone').value;
-            const email = document.getElementById('email').value;
+        async function login() {
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
             try {
-                // Simulate registration request
-                const response = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        fio,
-                        dateOfBirth,
-                        phone,
-                        email,
-                        password
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to register');
+                // Проверяем, является ли пользователь клиентом
+                const response = await fetch(`/api/customer/fio/${username}`);
+                if (response.ok) {
+                    const customerData = await response.json();
+                    if (customerData.password === password) {
+                        // Сохраняем данные в sessionStorage
+                        sessionStorage.setItem('user', JSON.stringify({
+                            type: 'customer',
+                            username,
+                            customerId: customerData.id
+                        }));
+                        window.location.href = 'customer-home.html';
+                        return;
+                    }
                 }
 
-                alert('Registration successful!');
-                window.location.href = 'index.html';
+                alert('Неверный логин или пароль');
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                alert(`Ошибка: ${error.message}`);
             }
-        });
+        }
     </script>
 </body>
-
 </html>

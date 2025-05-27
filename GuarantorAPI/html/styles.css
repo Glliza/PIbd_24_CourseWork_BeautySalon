@@ -178,7 +178,6 @@ h1, h2, h3, h4, h5, h6 {
     background-color: #0e4926;
     color: white;
     border: none;
-    border-radius: 5px;
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
@@ -292,5 +291,103 @@ h1, h2, h3, h4, h5, h6 {
     
     .footer-logo {
         justify-content: center;
+    }
+}
+/* Стили для страницы входа сотрудников */
+.login-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+}
+
+.dropdown-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.dropdown-container select {
+    width: 100%;
+    padding: 10px 40px 10px 30px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    appearance: none;
+    background-color: white;
+}
+
+.dropdown-container .input-icon {
+    z-index: 1;
+}
+
+.dropdown-container .delete-button {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+    z-index: 2;
+}
+
+.dropdown-container .delete-button:hover {
+    color: #c82333;
+}
+
+.action-buttons {
+    margin-top: 20px; 
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background-color: #0e4926;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #27ae60;
+    transform: translateY(-2px);
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .login-section .split-screen {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .login-section .image-container,
+    .login-section .form-container {
+        flex: 0 0 100%;
+        width: 100%;
+    }
+    
+    .login-section .image-container {
+        height: 200px;
     }
 }

@@ -294,3 +294,82 @@ h1, h2, h3, h4, h5, h6 {
         justify-content: center;
     }
 }
+
+/* Стили для страницы входа клиентов */
+.customer-login .login-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+}
+
+.customer-login .form-title {
+    color: #0e4926;
+    margin-bottom: 30px;
+}
+
+.customer-login .form-input {
+    padding: 12px 40px 12px 40px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.customer-login .form-input:focus {
+    border-color: #0e4926;
+    box-shadow: 0 0 0 2px rgba(14, 73, 38, 0.2);
+}
+
+.customer-login .enter-button {
+    margin-top: 20px; 
+    background-color: #0e4926;
+    color: white;
+    border: none;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.customer-login .enter-button:hover {
+    background-color: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.customer-login .login-link {
+    color: #0e4926;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.customer-login .login-link:hover {
+    color: #27ae60;
+    text-decoration: underline;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .customer-login .split-screen {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .customer-login .image-container,
+    .customer-login .form-container {
+        flex: 0 0 100%;
+        width: 100%;
+    }
+    
+    .customer-login .image-container {
+        height: 200px;
+    }
+    
+    .customer-login .form-container {
+        padding: 30px 20px;
+    }
+}
