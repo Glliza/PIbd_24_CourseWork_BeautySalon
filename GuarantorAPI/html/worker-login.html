@@ -1,249 +1,127 @@
 <!DOCTYPE html>
-<html lang="ru">
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/GuarantorAPI/html/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="icon" type="image/svg+xml" href="/BeautySalonAPI/img/cry.svg" />
-    <title>Beauty Salon - Вход для сотрудников</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Beauty Salon - Worker Login</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Подключаем общий CSS -->
 </head>
+<body class="login-page">
 
-<body>
-    <!-- Header (такой же как на странице регистрации) -->
-    <header class="header">
-        <div class="container">
-            <div class="logo-container">
-                <img src="/BeautySalonAPI/img/Beauty.svg" alt="Логотип салона" class="Beauty">
-                <div>
-                    <h1 class="logo">Вы ужасны</h1>
-                    <p class="logo-slogan">Ваша красота - наша боль</p>
-                </div>
-            <div class="header-contacts">
-                <div class="contact-item">
-                    <i class="fas fa-phone-alt"></i>
-                    <span>+7 (123) 456-78-90</span>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-clock"></i>
-                    <span>Ежедневно 9:00-21:00</span>
-                </div>
-            </div>
+    <!-- Шапка -->
+    <header class="site-header">
+        <div class="header-logo">
+            <img src="/BeautySalonAPI/img/Beauty.svg" alt="Logo">
+        </div>
+        <div class="header-contact">
+            <p>+7 (123) 456-78-90</p>
         </div>
     </header>
 
-    <!-- Login Section -->
-    <section class="login-section">
-        <div class="split-screen">
-            <!-- Left Side: Image -->
-            <div class="image-container d-none d-md-flex">
-                <img src="/BeautySalonAPI/img/1.jpg" alt="Салон красоты" class="salon-image">
-            </div>
+    <!-- Основной контейнер -->
+    <div class="split-container">
+        <!-- Левая часть - форма -->
+        <div class="form-section">
+            <div class="login-container">
+                <h2>Worker Login</h2>
 
-            <!-- Right Side: Form -->
-            <div class="form-container p-5">
-                <h2 class="form-title mb-4 text-center">Вход для сотрудников</h2>
-                <form id="login-form">
-                    <div class="input-group mb-3">
-                        <span class="input-icon"><i class="fas fa-user"></i></span>
-                        <input type="text" id="username" class="form-control form-input" placeholder="Логин" required>
-                    </div>
-                    <div class="input-group mb-3">
-                        <span class="input-icon"><i class="fas fa-lock"></i></span>
-                        <input type="password" id="password" class="form-control form-input" placeholder="Пароль" required>
-                    </div>
-                    
-                    <div class="input-group mb-3 dropdown-container">
-                        <span class="input-icon"><i class="fas fa-cash-register"></i></span>
-                        <select id="cashbox-select" class="form-control form-input" required>
-                            <option value="">Выберите кассу</option>
-                            <!-- Options will be populated dynamically -->
-                        </select>
-                        <button type="button" class="delete-button" onclick="deleteCashBox()">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
+                <div class="input-wrapper">
+                    <input type="text" class="input-field" id="username" placeholder="Login">
+                </div>
 
-                    <div class="action-buttons mb-3">
-                        <button type="button" class="btn btn-secondary w-100 mb-2" onclick="createCashBox()">
-                            Создать кассу
-                        </button>
-                        <button type="submit" class="btn btn-primary w-100 enter-button">
-                            Войти
-                        </button>
-                    </div>
+                <div class="input-wrapper">
+                    <input type="password" class="input-field" id="password" placeholder="Password">
+                </div>
 
-                    <p class="already-registered mt-3 text-center">
-                        Нет аккаунта? <a href="/BeautySalonAPI/html/registration.html" class="login-link">Зарегистрироваться</a>
-                    </p>
-                </form>
+                <div class="dropdown-container">
+                    <select id="cashbox-select">
+                        <option value="">Select CashBox</option>
+                        <!-- Options будут добавлены динамически -->
+                    </select>
+                    <button class="delete-button" onclick="deleteCashBox()">X</button>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="create-button" onclick="createCashBox()">Create</button>
+                    <button class="enter-button" onclick="login()">Enter</button>
+                </div>
+
+                <button class="registration-button" onclick="goToRegistration()">Register</button>
             </div>
         </div>
-    </section>
 
-    <!-- Footer (такой же как на странице регистрации) -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-columns">
-                <div class="footer-column">
-                    <h3>Контакты</h3>
-                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Красивая, 15</p>
-                    <p><i class="fas fa-phone-alt"></i> +7 (123) 456-78-90</p>
-                    <p><i class="fas fa-envelope"></i> info@beautyharmony.ru</p>
-                </div>
-                <div class="footer-column">
-                    <h3>Мы в соцсетях:</h3>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-telegram"></i></a>
-                        <a href="#"><i class="fab fa-whatsapp"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2023 Вы ужасны. Все права защищены.</p>
-            </div>
-        </div>
+        <!-- Правая часть - изображение -->
+        <div class="image-section"></div>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="site-footer">
+        <p>&copy; 2025 Beauty Salon. All rights reserved.</p>
     </footer>
 
+    <!-- JS скрипты -->
     <script>
-        document.getElementById('login-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            await login();
-        });
-
         async function createCashBox() {
             const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            if (!username || !password) {
-                alert('Пожалуйста, введите логин и пароль перед созданием кассы');
-                return;
-            }
-            
-            try {
-                // Здесь будет API-вызов для создания кассы
-                const response = await fetch('/api/cashboxes', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username,
-                        password
-                    })
-                });
-                
-                if (response.ok) {
-                    const newCashBox = await response.json();
-                    // Добавляем новую кассу в выпадающий список
-                    const option = document.createElement('option');
-                    option.value = newCashBox.id;
-                    option.textContent = newCashBox.name;
-                    document.getElementById('cashbox-select').appendChild(option);
-                    alert(`Касса "${newCashBox.name}" успешно создана!`);
-                } else {
-                    throw new Error('Ошибка при создании кассы');
-                }
-            } catch (error) {
-                alert(`Ошибка: ${error.message}`);
-            }
+            alert(`Creating cashbox for user: ${username}`);
         }
 
         async function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const selectedCashBox = document.getElementById('cashbox-select').value;
-
-            if (!selectedCashBox) {
-                alert('Пожалуйста, выберите кассу');
-                return;
-            }
 
             try {
-                // Проверяем, является ли пользователь сотрудником
                 let response = await fetch(`/api/staff/fio/${username}`);
                 if (response.ok) {
                     const staffData = await response.json();
                     if (staffData.password === password) {
-                        // Сохраняем данные в sessionStorage
-                        sessionStorage.setItem('user', JSON.stringify({
-                            type: 'staff',
-                            username,
-                            cashbox: selectedCashBox
-                        }));
+                        alert(`Worker login successful: ${username}`);
                         window.location.href = 'worker-home.html';
                         return;
                     }
                 }
 
-                // Если не сотрудник, проверяем как клиента
                 response = await fetch(`/api/customer/fio/${username}`);
                 if (response.ok) {
                     const customerData = await response.json();
                     if (customerData.password === password) {
-                        sessionStorage.setItem('user', JSON.stringify({
-                            type: 'customer',
-                            username
-                        }));
+                        alert(`Customer login successful: ${username}`);
                         window.location.href = 'customer-home.html';
                         return;
                     }
                 }
 
-                alert('Неверный логин или пароль');
+                alert('Invalid username or password');
             } catch (error) {
-                alert(`Ошибка: ${error.message}`);
+                alert(`Error: ${error.message}`);
             }
         }
 
         function deleteCashBox() {
-            const selectedCashBox = document.getElementById('cashbox-select');
-            const selectedOption = selectedCashBox.options[selectedCashBox.selectedIndex];
-            
-            if (selectedOption && selectedOption.value) {
-                if (confirm(`Вы уверены, что хотите удалить кассу "${selectedOption.text}"?`)) {
-                    try {
-                        // Здесь будет API-вызов для удаления кассы
-                        fetch(`/api/cashboxes/${selectedOption.value}`, {
-                            method: 'DELETE'
-                        }).then(response => {
-                            if (response.ok) {
-                                selectedCashBox.remove(selectedCashBox.selectedIndex);
-                                alert('Касса успешно удалена');
-                            } else {
-                                throw new Error('Ошибка при удалении кассы');
-                            }
-                        });
-                    } catch (error) {
-                        alert(`Ошибка: ${error.message}`);
-                    }
+            const selectedCashBox = document.getElementById('cashbox-select').value;
+            if (selectedCashBox) {
+                if (confirm(`Are you sure you want to delete cashbox: ${selectedCashBox}?`)) {
+                    alert(`Deleting cashbox: ${selectedCashBox}`);
                 }
             } else {
-                alert('Пожалуйста, выберите кассу для удаления');
+                alert('Please select a cashbox to delete');
             }
         }
 
-        // Заполняем список касс при загрузке страницы
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                // Здесь будет API-вызов для получения списка касс
-                const response = await fetch('/api/cashboxes');
-                if (response.ok) {
-                    const cashboxes = await response.json();
-                    const select = document.getElementById('cashbox-select');
-                    
-                    cashboxes.forEach(cb => {
-                        const option = document.createElement('option');
-                        option.value = cb.id;
-                        option.textContent = cb.name;
-                        select.appendChild(option);
-                    });
-                }
-            } catch (error) {
-                console.error('Ошибка при загрузке касс:', error);
-            }
+        function goToRegistration() {
+            window.location.href = '/BeautySalonAPI/html/registration.html';
+        }
+
+        // Заполнение выпадающего списка (пример)
+        document.addEventListener('DOMContentLoaded', () => {
+            const cashboxSelect = document.getElementById('cashbox-select');
+            const cashboxes = ['CashBox 1', 'CashBox 2', 'CashBox 3'];
+            cashboxes.forEach(cb => {
+                const option = document.createElement('option');
+                option.value = cb;
+                option.textContent = cb;
+                cashboxSelect.appendChild(option);
+            });
         });
     </script>
 </body>
