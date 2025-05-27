@@ -135,7 +135,7 @@ namespace BeautySalon.BLImplementations
             }
 
             // Approved but not finished requests
-            var pendingRequests = requestList.Where(r => r.Status == OrderStatus.Approved && !r.IsDeleted);
+            var pendingRequests = requestList.Where(r => r.Status == OrderStatus.Completed && !r.IsDeleted);
             reportContent.AppendLine("\nPending Requests:");
             foreach (var request in pendingRequests)
             {

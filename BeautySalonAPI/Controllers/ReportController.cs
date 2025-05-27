@@ -29,14 +29,14 @@ namespace BeautySalonAPI.Controllers
         }
 
         [HttpPost("generate-product-report")]
-        public async Task<IActionResult> GenerateProductReport([FromBody] List<Product> productList)
+        public async Task<IActionResult> GenerateProductReport([FromBody] ProductReportRequest request)
         {
-            if (productList == null || !productList.Any())
+            if (request.ProductList == null || !request.ProductList.Any())
             {
                 return BadRequest("No product data provided.");
             }
 
-            var filePath = await _reportGenerator.GenerateProductReport(productList);
+            var filePath = await _reportGenerator.GenerateProductReport(request.MinPrice, request.MaxPrice, request.ProductList);
             return Ok(new { FilePath = filePath });
         }
 
@@ -53,27 +53,48 @@ namespace BeautySalonAPI.Controllers
         }
 
         [HttpPost("generate-visit-report")]
-        public async Task<IActionResult> GenerateVisitReport([FromBody] List<Visit> visitList)
+        public async Task<IActionResult> GenerateVisitReport([FromBody] VisitReportRequest request)
         {
-            if (visitList == null || !visitList.Any())
+            if (request.VisitList == null || !request.VisitList.Any())
             {
                 return BadRequest("No visit data provided.");
             }
 
-            var filePath = await _reportGenerator.GenerateVisitReport(visitList);
+            var filePath = await _reportGenerator.GenerateVisitReport(request.StaffId, request.StartDate, request.EndDate, request.VisitList);
             return Ok(new { FilePath = filePath });
         }
 
         [HttpPost("generate-request-report")]
-        public async Task<IActionResult> GenerateRequestReport([FromBody] List<Request> requestList)
+        public async Task<IActionResult> GenerateRequestReport([FromBody] RequestReportRequest request)
         {
-            if (requestList == null || !requestList.Any())
+            if (request.RequestList == null || !request.RequestList.Any())
             {
                 return BadRequest("No request data provided.");
             }
 
-            var filePath = await _reportGenerator.GenerateRequestReport(requestList);
+            var filePath = await _reportGenerator.GenerateRequestReport(request.CustomerId, request.RequestList);
             return Ok(new { FilePath = filePath });
+        }
+
+        public class ProductReportRequest
+        {
+            public decimal MinPrice { get; set; }
+            public decimal MaxPrice { get; set; }
+            public List<Product> ProductList { get; set; }
+        }
+
+        public class VisitReportRequest
+        {
+            public string StaffId { get; set; }
+            public DateTime StartDate { get; set; }
+            public DateTime EndDate { get; set; }
+            public List<Visit> VisitList { get; set; }
+        }
+
+        public class RequestReportRequest
+        {
+            public string CustomerId { get; set; }
+            public List<Request> RequestList { get; set; }
         }
     }
 }
