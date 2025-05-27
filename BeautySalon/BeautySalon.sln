@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeautySalon", "BeautySalon.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeautySalonAPI", "..\BeautySalonAPI\BeautySalonAPI.csproj", "{903CE484-975E-4F38-BC91-544AA307BEB7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExecutorAPI", "..\ExecutorAPI\ExecutorAPI.csproj", "{F6A6F4B5-4657-4D18-8DA1-1B8480C71F23}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GuarantorAPI", "..\GuarantorAPI\GuarantorAPI.csproj", "{75A43FF1-4596-4D1D-971C-9B6AEEE73A9C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{903CE484-975E-4F38-BC91-544AA307BEB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{903CE484-975E-4F38-BC91-544AA307BEB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{903CE484-975E-4F38-BC91-544AA307BEB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6A6F4B5-4657-4D18-8DA1-1B8480C71F23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6A6F4B5-4657-4D18-8DA1-1B8480C71F23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6A6F4B5-4657-4D18-8DA1-1B8480C71F23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6A6F4B5-4657-4D18-8DA1-1B8480C71F23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75A43FF1-4596-4D1D-971C-9B6AEEE73A9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75A43FF1-4596-4D1D-971C-9B6AEEE73A9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75A43FF1-4596-4D1D-971C-9B6AEEE73A9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75A43FF1-4596-4D1D-971C-9B6AEEE73A9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

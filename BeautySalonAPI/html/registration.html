@@ -4,127 +4,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
     <title>Beauty Salon - Registration</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .registration-container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: center;
-        }
-
-        .registration-container h2 {
-            margin-bottom: 1rem;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 0.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .action-buttons {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .action-buttons button {
-            width: 48%;
-            padding: 0.7rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .register-button {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .back-button {
-            background-color: #007bff;
-            color: white;
-        }
-    </style>
 </head>
 
 <body>
-    <div class="registration-container">
-        <h2>Register as Customer and Worker</h2>
-        <input type="text" class="input-field" id="customer-fio" placeholder="Customer FIO">
-        <input type="email" class="input-field" id="customer-email" placeholder="Customer Email">
-        <input type="password" class="input-field" id="customer-password" placeholder="Customer Password">
-
-        <hr>
-
-        <input type="text" class="input-field" id="worker-fio" placeholder="Worker FIO">
-        <input type="email" class="input-field" id="worker-email" placeholder="Worker Email">
-        <input type="password" class="input-field" id="worker-password" placeholder="Worker Password">
-
-        <div class="action-buttons">
-            <button class="register-button" onclick="register()">Register</button>
-            <button class="back-button" onclick="goBack()">Back</button>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo-container">
+                <img src="/BeautySalonAPI/img/Beauty.svg" alt="Логотип салона" class="Beauty">
+                <div>
+                    <h1 class="logo">Вы ужасны</h1>
+                    <p class="logo-slogan">Ваша красота - наша боль</p>
+                </div>
+            </div>
+            <div class="header-contacts">
+                <div class="contact-item">
+                    <i class="fas fa-phone-alt"></i>
+                    <span>+7 (123) 456-78-90</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Ежедневно 9:00-21:00</span>
+                </div>
+            </div>
         </div>
-    </div>
+    </header>
+
+    <!-- Registration Section -->
+    <section class="registration-section">
+        <div class="split-screen">
+            <!-- Left Side: Image -->
+            <div class="image-container d-none d-md-flex">
+                <img src="/BeautySalonAPI/img/salon-image.png" alt="Салон красоты" class="salon-image">
+            </div>
+
+            <!-- Right Side: Form -->
+            <div class="form-container p-5">
+                <h2 class="form-title mb-4 text-center">Регистрация</h2>
+                <form id="registration-form">
+                    <div class="input-group mb-3">
+                        <span class="input-icon"><i class="fas fa-user"></i></span>
+                        <input type="text" id="fio" class="form-control form-input" placeholder="ФИО" required>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-icon"><i class="fas fa-calendar-alt"></i></span>
+                        <input type="date" id="date-of-birth" class="form-control form-input" placeholder="Дата рождения" required>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-icon"><i class="fas fa-phone"></i></span>
+                        <input type="tel" id="phone" class="form-control form-input" placeholder="+7XXXXXXXXXX" required>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                        <input type="email" id="email" class="form-control form-input" placeholder="Email" required>
+                    </div>
+                    <div class="input-group mb-4">
+                        <span class="input-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" id="password" class="form-control form-input" placeholder="Пароль" required>
+                    </div>
+                    <button type="submit" class="register-button btn btn-success w-100">Зарегистрироваться</button>
+                    <p class="already-registered mt-3 text-center">
+                        Уже есть аккаунт? <a href="#" class="login-link">Войти</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-columns">
+                <div class="footer-column">
+                    <h3>Контакты</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Красивая, 15</p>
+                    <p><i class="fas fa-phone-alt"></i> +7 (123) 456-78-90</p>
+                    <p><i class="fas fa-envelope"></i> info@beautyharmony.ru</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Мы в соцсетях:</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Вы ужасны. Все права защищены.</p>
+            </div>
+             </div>
+    </footer>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css ">
 
     <script>
-        async function register() {
-            const customerFio = document.getElementById('customer-fio').value;
-            const customerEmail = document.getElementById('customer-email').value;
-            const customerPassword = document.getElementById('customer-password').value;
+        document.getElementById('registration-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-            const workerFio = document.getElementById('worker-fio').value;
-            const workerEmail = document.getElementById('worker-email').value;
-            const workerPassword = document.getElementById('worker-password').value;
+            const fio = document.getElementById('fio').value;
+            const dateOfBirth = document.getElementById('date-of-birth').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
 
             try {
-                // Register customer
-                const customerResponse = await fetch('/api/customer', {
+                // Simulate registration request
+                const response = await fetch('/api/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        fio: customerFio,
-                        email: customerEmail,
-                        password: customerPassword
+                        fio,
+                        dateOfBirth,
+                        phone,
+                        email,
+                        password
                     })
                 });
 
-                if (!customerResponse.ok) {
-                    throw new Error('Failed to register customer');
-                }
-
-                // Register worker
-                const workerResponse = await fetch('/api/staff', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        fio: workerFio,
-                        email: workerEmail,
-                        password: workerPassword
-                    })
-                });
-
-                if (!workerResponse.ok) {
-                    throw new Error('Failed to register worker');
+                if (!response.ok) {
+                    throw new Error('Failed to register');
                 }
 
                 alert('Registration successful!');
@@ -132,11 +135,7 @@
             } catch (error) {
                 alert(`Error: ${error.message}`);
             }
-        }
-
-        function goBack() {
-            window.location.href = 'index.html';
-        }
+        });
     </script>
 </body>
 
