@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="/BeautySalonAPI/img/cry.svg" />
+    <title>Beauty Salon - Вход для клиентов</title>
+</head>
+
+<body>
+    <!-- Header (как на других страницах) -->
+    <header class="header">
+        <div class="container">
+            <div class="logo-container">
+                <img src="/BeautySalonAPI/img/Beauty.svg" alt="Логотип салона" class="Beauty">
+                <div>
+                    <h1 class="logo">Вы ужасны</h1>
+                    <p class="logo-slogan">Ваша красота - наша боль</p>
+                </div>
+            </div>
+            <div class="header-contacts">
+                <div class="contact-item">
+                    <i class="fas fa-phone-alt"></i>
+                    <span>+7 (123) 456-78-90</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Ежедневно 9:00-21:00</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Login Section -->
+    <section class="login-section customer-login">
+        <div class="split-screen">
+            <!-- Left Side: Image -->
+            <div class="image-container d-none d-md-flex">
+                <img src="/BeautySalonAPI/img/1.jpg" alt="Салон красоты" class="salon-image">
+            </div>
+
+            <!-- Right Side: Form -->
+            <div class="form-container p-5">
+                <h2 class="form-title mb-4 text-center">Вход для клиентов</h2>
+                <form id="customer-login-form">
+                    <div class="input-group mb-3">
+                        <span class="input-icon"><i class="fas fa-user"></i></span>
+                        <input type="text" id="username" class="form-control form-input" placeholder="Логин" required>
+                    </div>
+                    <div class="input-group mb-4">
+                        <span class="input-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" id="password" class="form-control form-input" placeholder="Пароль" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 enter-button">
+                        Войти
+                    </button>
+
+                    <p class="already-registered mt-3 text-center">
+                        Нет аккаунта? <a href="/BeautySalonAPI/html/registration.html" class="login-link">Зарегистрироваться</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (как на других страницах) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-columns">
+                <div class="footer-column">
+                    <h3>Контакты</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Красивая, 15</p>
+                    <p><i class="fas fa-phone-alt"></i> +7 (123) 456-78-90</p>
+                    <p><i class="fas fa-envelope"></i> info@beautyharmony.ru</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Мы в соцсетях:</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Вы ужасны. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('customer-login-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            await login();
+        });
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                // Проверяем, является ли пользователь клиентом
+                const response = await fetch(`/api/customer/fio/${username}`);
+                if (response.ok) {
+                    const customerData = await response.json();
+                    if (customerData.password === password) {
+                        // Сохраняем данные в sessionStorage
+                        sessionStorage.setItem('user', JSON.stringify({
+                            type: 'customer',
+                            username,
+                            customerId: customerData.id
+                        }));
+                        window.location.href = 'customer-home.html';
+                        return;
+                    }
+                }
+
+                alert('Неверный логин или пароль');
+            } catch (error) {
+                alert(`Ошибка: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

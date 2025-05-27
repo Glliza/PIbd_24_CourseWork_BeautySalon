@@ -1,0 +1,475 @@
+/* Общие стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f8f8f8; /* Бледно-серый фон */
+    color: #333;
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 500;
+}
+
+/* Обновленный Header */
+.header {
+    background-color: #000; /* Черный цвет шапки */
+    color: #fff; /* Белый текст */
+    padding: 15px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.logo {
+    font-size: 24px;
+    margin-bottom: 5px;
+    color: #fff; /* Белый текст */
+}
+
+.logo-slogan {
+    font-size: 12px;
+    opacity: 0.8;
+    font-weight: 300;
+    color: #ccc; /* Светло-серый текст */
+}
+
+.header-contacts {
+    display: flex;
+    gap: 25px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #ccc; /* Светло-серый текст */
+}
+
+/* Обновляем стили для split-screen */
+.split-screen {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+}
+
+/* Левая часть с изображением */
+.image-container {
+    flex: 0 0 45%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.salon-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+}
+
+/* Правая часть с формой */
+.form-container {
+    flex: 0 0 55%;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 50px;
+    overflow-y: auto;
+}
+
+.form-title {
+    font-size: 2rem;
+    color: #000; /* Черный текст */
+    font-weight: bold;
+    text-align: center;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.input-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ccc;
+    font-size: 18px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px 40px 10px 30px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: #000; /* Черный цвет при фокусе */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.already-registered {
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+.login-link {
+    color: #000; /* Черный текст */
+    font-weight: bold;
+}
+
+.login-link:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+.footer {
+    background-color: #000; /* Черный фон */
+    color: white;
+    padding: 20px 0 15px;
+    font-size: 14px;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.footer-logo-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.footer-contacts {
+    display: flex;
+    gap: 25px;
+}
+
+.footer-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.footer-social {
+    display: flex;
+    gap: 15px;
+}
+
+.social-link {
+    color: white;
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+.social-link:hover {
+    color: #ccc; /* Светло-серый цвет при наведении */
+    transform: translateY(-2px);
+}
+
+.footer-copyright {
+    text-align: center;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .split-screen {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .image-container,
+    .form-container {
+        flex: 0 0 100%;
+        width: 100%;
+    }
+
+    .image-container {
+        height: 300px;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .footer-contacts {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .footer-logo {
+        justify-content: center;
+    }
+}
+
+/* Стили для страницы входа сотрудников */
+.login-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+}
+
+.dropdown-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.dropdown-container select {
+    width: 100%;
+    padding: 10px 40px 10px 30px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    appearance: none;
+    background-color: white;
+}
+
+.dropdown-container .input-icon {
+    z-index: 1;
+}
+
+.dropdown-container .delete-button {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+    z-index: 2;
+}
+
+.dropdown-container .delete-button:hover {
+    color: #c82333;
+}
+
+.action-buttons {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background-color: #000; /* Черный фон */
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #333; /* Темно-серый фон при наведении */
+    transform: translateY(-2px);
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .login-section .split-screen {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .login-section .image-container,
+    .login-section .form-container {
+        flex: 0 0 100%;
+        width: 100%;
+    }
+
+    .login-section .image-container {
+        height: 200px;
+    }
+}
+
+/* === Контейнер для профиля сотрудника === */
+.staff-container {
+    padding: 30px 20px;
+}
+
+/* === Информация о сотруднике === */
+.profile-info {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+}
+
+.info-column p {
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.button-column {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 1 1 30%;
+    margin-left: 20px;
+}
+
+/* === Раздел смен === */
+.shift-section {
+    margin-bottom: 30px;
+}
+
+.shift-section h2 {
+    font-size: 1.5rem;
+    color: #000; /* Черный текст */
+    margin-bottom: 15px;
+}
+
+.shift-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.shift-list li {
+    background-color: #f9f9f9;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 5px solid #000; /* Черная граница */
+}
+
+/* === Карточки (Receipt & Visits) === */
+.cards-section {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    flex: 1 1 45%;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #000; /* Черный текст */
+    text-align: center;
+}
+
+.card-actions {
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.card-actions button {
+    width: 100%;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* === Адаптация под мобильные устройства === */
+@media (max-width: 768px) {
+    .profile-info {
+        flex-direction: column;
+    }
+
+    .button-column {
+        margin-top: 15px;
+        margin-left: 0;
+        justify-content: center;
+    }
+
+    .cards-section {
+        flex-direction: column;
+    }
+}
