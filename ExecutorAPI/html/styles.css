@@ -1,11 +1,11 @@
-/* ==== Обнуление отступов ==== */
+/* Обнуление отступов */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* ==== Тело страницы ==== */
+/* Тело страницы */
 body.login-page {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #e0e0e0; /* Серый фон */
@@ -14,7 +14,7 @@ body.login-page {
     flex-direction: column;
 }
 
-/* ==== Шапка ==== */
+/* Шапка */
 .site-header {
     position: fixed;
     top: 0;
@@ -40,14 +40,14 @@ body.login-page {
     color: white;
 }
 
-/* ==== Основной контейнер с разделением на две колонки ==== */
+/* Основной контейнер с разделением на две колонки */
 .split-container {
     display: flex;
     height: calc(100vh - 60px - 40px); /* Вычитаем header и footer */
     margin-top: 60px; /* Чтобы не перекрывало шапкой */
 }
 
-/* ==== Левая часть - форма ==== */
+/* Левая часть - форма */
 .form-section {
     width: 50%;
     display: flex;
@@ -56,7 +56,7 @@ body.login-page {
     background-color: #f9f9f9;
 }
 
-/* ==== Правая часть - изображение ==== */
+/* Правая часть - изображение */
 .image-section {
     width: 50%;
     height: 100%;
@@ -65,7 +65,7 @@ body.login-page {
     background-position: center;
 }
 
-/* ==== Контейнер формы ==== */
+/* Контейнер формы */
 .login-container {
     background-color: #fff;
     padding: 2.5rem;
@@ -82,7 +82,7 @@ body.login-page {
     text-align: center;
 }
 
-/* ==== Поля ввода ==== */
+/* Поля ввода */
 .input-wrapper {
     margin-bottom: 1rem;
 }
@@ -102,7 +102,7 @@ body.login-page {
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
 }
 
-/* ==== Кнопки ==== */
+/* Кнопки */
 .enter-button {
     width: 100%;
     padding: 0.75rem;
@@ -138,7 +138,7 @@ body.login-page {
     background-color: #a19572;
 }
 
-/* ==== Подвал ==== */
+/* Подвал */
 .site-footer {
     position: fixed;
     bottom: 0;
@@ -151,7 +151,8 @@ body.login-page {
     color: white;
     z-index: 1000;
 }
-/* ==== Профиль клиента ==== */
+
+/* - - - Профиль клиента */
 
 .profile-main {
     padding: 2rem;
